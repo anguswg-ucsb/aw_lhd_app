@@ -1,0 +1,56 @@
+.navbar-logo img {
+    position: absolute;
+     max-width:100px;
+     max-height:100px;
+}
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus {
+    color: white;
+    background-color: #5d839e;
+    font-weight: 600;
+    font-size: large;
+}
+
+.navbar-inverse .navbar-brand {
+    color: white;
+    font-weight: 500;
+}
+
+.chart-wrapper, .nav-tabs-custom, .sbframe-commentary {
+    background: #FFFFFF;
+    border: 1px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    margin-right: 8px;
+}
+
+.chart-title {
+    border-bottom: 2px solid white;
+    color: black;
+    font-size: 12px;
+    font-weight: 550;
+    padding: 7px 10px 4px;
+}
+
+.value-box .value {
+    font-size: 30px;
+    font-weight: bold;
+    margin: 0 0 3px 0;
+    white-space: nowrap;
+    padding: 0;
+}
+
+.bg-success {
+    background-color:  rgba(34, 139, 34, 0.6);
+}
+
+.bg-primary {
+    background-color: rgba(12, 56, 100, 0.6);
+}
+
+.bg-danger {
+    background-color: rgba(139, 0, 0, 0.6);
+}
+
+.bg-warning {
+    background-color: rgba(255, 165, 0, 0.5);
+}
