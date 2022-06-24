@@ -1,29 +1,122 @@
-# ---- LHD basemap ----
+# # ---- LHD basemap ----
+# basemap <- function(
+#   pts
+# )
+# {
+#  
+#   # LEAFLET MAP
+#   leaflet::leaflet() %>%
+#     leaflet::addProviderTiles(providers$OpenStreetMap, group = "Topographic") %>%
+#     leaflet::addCircleMarkers(
+#       data        = pts,
+#       fillColor   = "grey",
+#       fillOpacity = 0.5,
+#       radius      = 4,
+#       color       = "black",
+#       stroke      = TRUE,
+#       weight      = 1,
+#       layerId     = ~new_id,
+#       group       = "regions",
+#       label       = ~new_id
+#     ) %>% 
+#     leaflet::addCircleMarkers(
+#       data        = pts,
+#       fillColor   = "red",
+#       fillOpacity = 0.5,
+#       radius      = 4,
+#       color       = "black",
+#       stroke      = TRUE,
+#       weight      = 1,
+#       layerId     = ~map_id,
+#       group       = ~new_id
+#       # label       = ~map_id
+#     ) %>%
+#     leaflet::hideGroup(group = pts$new_id)
+#  
+#   
+#     # leaflet::addCircleMarkers(
+#     #   data         = pts,
+#     #   # data         = score_pts,
+#     #   # color        = "black",
+#     #   fillColor    = "dodgerblue",
+#     #   opacity      = 1,
+#     #   radius       = 7,
+#     #   fillOpacity  = 0.5,
+#     #   weight       = 3,
+#     #   stroke       = TRUE,
+#     #   layerId      = ~new_id,
+#     #   group        = "lhd_base",
+#     #   label        = ~new_id
+#     # )  
+#   
+# 
+# }
+# ---- Color LHD basemap ----
 basemap <- function(
   pts
 )
 {
- 
+  
+  # legend_cols <- 
+  #   pts %>% 
+  #   dplyr::group_by(legend) %>% 
+  #   dplyr::slice(1) %>% 
+  #   dplyr::select(new_id, map_id, legend, pt_color)
+  
+  ulegend <- unique(pts$legend)
+  
+  # pal <- colorFactor( palette = colorRampPalette(legend_cols$pt_color)(length(legend_cols$pt_color)), 
+  #   domain  = legend_cols$legend )
+  
+  # pal <- colorFactor(palette = colorRampPalette(viridisLite::turbo(nrow(legend_cols)))(length(legend_cols$pt_color)), 
+  #   domain  = legend_cols$legend)
+
+  pal <- leaflet::colorFactor(
+    palette = colorRampPalette(RColorBrewer::brewer.pal(length(ulegend), "Paired"))(length(ulegend)), 
+    domain  = ulegend
+  )
+  
+  # HTML Labels for markers
+  labels <- sprintf(
+    "<strong>%s</strong><br/>ID: %s",
+    pts$legend, pts$new_id
+  ) %>%
+    lapply(htmltools::HTML)
+  
   # LEAFLET MAP
   leaflet::leaflet() %>%
+    # leaflet::addProviderTiles(providers$CartoDB.DarkMatter, group = "Topographic") %>%
     leaflet::addProviderTiles(providers$OpenStreetMap, group = "Topographic") %>%
     leaflet::addCircleMarkers(
       data        = pts,
-      fillColor   = "grey",
-      fillOpacity = 0.5,
-      radius      = 4,
+      fillColor   = ~pal(legend),
+      # fillOpacity = 0.5,
+      fillOpacity = 0.8,
+      # radius      = 4,
       color       = "black",
-      stroke      = TRUE,
+      opacity     = 1,
       weight      = 1,
+      stroke      = T,
+      # label       = ~legend
       layerId     = ~new_id,
       group       = "regions",
-      label       = ~new_id
+      label       = labels,
+      labelOptions = labelOptions(
+        style     = list("font-weight" = "normal", padding = "3px 8px"),
+        textsize  = "15px",
+        direction = "auto"
+        )
     ) %>% 
+    leaflet::addLegend(
+      pal    = pal, 
+      values = ulegend,
+      title  = "Owner"
+      ) %>% 
     leaflet::addCircleMarkers(
       data        = pts,
-      fillColor   = "red",
-      fillOpacity = 0.5,
-      radius      = 4,
+      fillColor   = "black",
+      fillOpacity = 0.6,
+      # radius      = 4,
       color       = "black",
       stroke      = TRUE,
       weight      = 1,
@@ -32,26 +125,50 @@ basemap <- function(
       # label       = ~map_id
     ) %>%
     leaflet::hideGroup(group = pts$new_id)
- 
-  
     # leaflet::addCircleMarkers(
-    #   data         = pts,
-    #   # data         = score_pts,
-    #   # color        = "black",
-    #   fillColor    = "dodgerblue",
-    #   opacity      = 1,
-    #   radius       = 7,
-    #   fillOpacity  = 0.5,
-    #   weight       = 3,
-    #   stroke       = TRUE,
-    #   layerId      = ~new_id,
-    #   group        = "lhd_base",
-    #   label        = ~new_id
-    # )  
+    #   data        = pts,
+    #   fillColor   = "grey",
+    #   fillOpacity = 0.5,
+    #   radius      = 4,
+    #   color       = "black",
+    #   stroke      = TRUE,
+    #   weight      = 1,
+    #   layerId     = ~new_id,
+    #   group       = "regions",
+    #   label       = ~new_id
+    # ) %>% 
+    # leaflet::addCircleMarkers(
+    #   data        = pts,
+    #   fillColor   = "red",
+    #   fillOpacity = 0.5,
+    #   radius      = 4,
+    #   color       = "black",
+    #   stroke      = TRUE,
+    #   weight      = 1,
+    #   layerId     = ~map_id,
+    #   group       = ~new_id
+    #   # label       = ~map_id
+    # ) %>%
+    # leaflet::hideGroup(group = pts$new_id)
   
-
+  
+  # leaflet::addCircleMarkers(
+  #   data         = pts,
+  #   # data         = score_pts,
+  #   # color        = "black",
+  #   fillColor    = "dodgerblue",
+  #   opacity      = 1,
+  #   radius       = 7,
+  #   fillOpacity  = 0.5,
+  #   weight       = 3,
+  #   stroke       = TRUE,
+  #   layerId      = ~new_id,
+  #   group        = "lhd_base",
+  #   label        = ~new_id
+  # )  
+  
+  
 }
-
 # ---- Flex Table Theme ----
 # Flex Table Theme for scoring table
 
@@ -179,7 +296,7 @@ score_rank_plot <- function(
   # plotly font
   font <- list(
     family = "Helvetica",
-    size  = 8,
+    size  = 12,
     color = "black"
   )
   
@@ -193,9 +310,9 @@ score_rank_plot <- function(
   rank_scores_plot <-
     ggplot2::ggplot() +
     ggplot2::geom_point(data = dplyr::filter(df, !new_id %in% lhd_ids),
-                        aes(x = total_score, y = rank), color = "black", size = 0.5) +
+                        aes(x = total_score, y = rank), color = "black", size = 1.5) +
     ggplot2::geom_point(data = dplyr::filter(df, new_id %in% lhd_ids),
-                        aes(x = total_score, y = rank), color = "red", size = 1) +
+                        aes(x = total_score, y = rank), color = "red", size = 2) +
     # ggplot2::geom_point(data = dplyr::filter(df, !new_id %in% selected$groups),
     #                     aes(x = rank, y = total_score), color = "black") +
     # ggplot2::geom_point(data = dplyr::filter(df, new_id %in% selected$groups),
@@ -229,19 +346,19 @@ score_rank_plot <- function(
       plotly::layout(
         font = font,
         legend = list(
-          title = list(size = 8),
-          font = list(size = 8)),
+          title = list(size = 12),
+          font = list(size = 12)),
         xaxis  = list(
           title=list(
             text = "Total Score",
-            font = list(size = 8)),
-          tickfont = list(size = 8)),
+            font = list(size = 12)),
+          tickfont = list(size = 12)),
         # titlefont = list(size = 5)
         yaxis  = list(
           title=list(
             text = "Rank",
-            font = list(size = 8)),
-          tickfont = list(size = 8))
+            font = list(size = 12)),
+          tickfont = list(size = 12))
         # yaxis = list(
         #   titlefont = list(size = 12), 
         #   tickfont  = list(size = 12)
@@ -262,7 +379,7 @@ score_mean_plot <- function(df, interactive = FALSE) {
   # plotly font
   font <- list(
     family = "Helvetica",
-    size = 8,
+    size = 12,
     color = "black"
   )
   
@@ -275,22 +392,22 @@ score_mean_plot <- function(df, interactive = FALSE) {
   
   # mean scores plot
   mean_plot <- 
-    ggplot(df, aes(x = clean_cat_id, y = Percent)) +
-    geom_segment(aes(x = clean_cat_id, xend = clean_cat_id, 
+    ggplot2::ggplot(df, aes(x = clean_cat_id, y = Percent)) +
+    ggplot2::geom_segment(aes(x = clean_cat_id, xend = clean_cat_id, 
                      y = 0, yend = Percent, color = clean_cat_id), size = 1) +
-    geom_point(aes(color = clean_cat_id), size = 2) +
-    scale_y_continuous(breaks = seq(0, 100, 25), 
+    ggplot2::geom_point(aes(color = clean_cat_id), size = 2) +
+    ggplot2::scale_y_continuous(breaks = seq(0, 100, 25), 
                        limits = c(0, 100), 
                        expand = c(0, 0)) +
-    coord_flip() +
-    scale_color_manual(values = c("orange", "darkred","forestgreen", "dodgerblue")) +
-    labs(
+    ggplot2::coord_flip() +
+    ggplot2::scale_color_manual(values = c("orange", "darkred","forestgreen", "dodgerblue")) +
+    ggplot2::labs(
       y = "Percent of Total score",
       x = "",
       color = ""
     ) +
     simple_theme + 
-    guides(color = guide_legend(reverse=F))
+    ggplot2::guides(color =  ggplot2::guide_legend(reverse=F))
   
   if (interactive  == TRUE) {
     
@@ -302,17 +419,17 @@ score_mean_plot <- function(df, interactive = FALSE) {
       plotly::layout(
         font = font,
         legend = list(
-          title = list(size = 8),
-          font = list(size = 8)),
+          title = list(size = 12),
+          font = list(size = 12)),
         xaxis  = list(
           title=list(
             text = "Percent of Total score",
-            font = list(size = 8)),
+            font = list(size = 12)),
         # titlefont = list(size = 5), 
-        tickfont = list(size = 8)),
+        tickfont = list(size = 12)),
         yaxis = list(
-          titlefont = list(size = 8), 
-          tickfont = list(size = 8)
+          titlefont = list(size = 12), 
+          tickfont = list(size = 12)
         )
       )
     
@@ -324,3 +441,4 @@ score_mean_plot <- function(df, interactive = FALSE) {
     
   }
 }
+

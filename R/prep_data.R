@@ -5,14 +5,22 @@ library(highcharter)
 
 raw_path   <- list.files("data/raw", full.names = T)
 final_path <- "data/app_data"
+
 # ****************************************
 # ---- Summarize & Clean scoring data ----
 # ****************************************
 
-aquatic <- readRDS(raw_path[1])
-public  <- readRDS(raw_path[3])
-rec     <- readRDS(raw_path[4])
-ws_cond <- readRDS(raw_path[5])
+# LHD scores
+aquatic    <- readRDS(raw_path[1])
+public     <- readRDS(raw_path[4])
+rec        <- readRDS(raw_path[5])
+ws_cond    <- readRDS(raw_path[6])
+
+# Owner type
+owner_type <- readRDS(raw_path[3]) %>% 
+  sf::st_drop_geometry() %>% 
+  dplyr::select(new_id, legend) %>% 
+  dplyr::mutate(new_id = as.character(new_id))
 
 # Join Scores data together
 scores <-
@@ -60,7 +68,27 @@ score_pts <-
     map_id = paste0("map_id_", as.character(1:n())),
     new_id = as.character(new_id)
   ) %>% 
-  dplyr::relocate(new_id, map_id, comid)
+  dplyr::relocate(new_id, map_id, comid) %>% 
+  dplyr::left_join(
+    owner_type,
+    by = "new_id"
+  ) %>% 
+  dplyr::mutate(
+    pt_color = dplyr::case_when(
+      legend == "Private"              ~ "#FB8B24", # dark orange
+      legend == "Private Conservation" ~ "#0C7C59", # spanish viridian
+      legend == "State"                ~ "#2B303A", # gunmental grey
+      legend == "NGO/Land Trust"       ~ "#BE95C4", # lilac
+      legend == "USFS"                 ~ "#F06449", # orange soda 
+      legend == "Local"                ~ "#58A4B0", # cadet blue
+      legend == "USFWS"                ~ "#392F5A", # space cadet  
+      legend == "BLM"                  ~ "#A5F8D3", # magic mint
+      legend == "NPS"                  ~ "#E2D686", # flax yellow
+      legend == "Federal"              ~ "#DB504A", # cedarchest
+      legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
+    )
+  ) %>% 
+  dplyr::relocate(new_id:recreation, legend, pt_color, geometry)
 
 saveRDS(score_pts, paste0(final_path, "/lhd_score_pts.rds"))
 
@@ -83,7 +111,27 @@ scores_no_sf <-
     map_id = paste0("map_id_", as.character(1:n())),
     new_id = as.character(new_id)
   ) %>% 
-  dplyr::relocate(new_id, map_id, comid)
+  dplyr::relocate(new_id, map_id, comid) %>% 
+  dplyr::left_join(
+    owner_type,
+    by = "new_id"
+    ) %>% 
+  dplyr::mutate(
+    pt_color = dplyr::case_when(
+      legend == "Private"              ~ "#FB8B24", # dark orange
+      legend == "Private Conservation" ~ "#0C7C59", # spanish viridian
+      legend == "State"                ~ "#2B303A", # gunmental grey
+      legend == "NGO/Land Trust"       ~ "#BE95C4", # lilac
+      legend == "USFS"                 ~ "#F06449", # orange soda 
+      legend == "Local"                ~ "#58A4B0", # cadet blue
+      legend == "USFWS"                ~ "#392F5A", # space cadet  
+      legend == "BLM"                  ~ "#A5F8D3", # magic mint
+      legend == "NPS"                  ~ "#E2D686", # flax yellow
+      legend == "Federal"              ~ "#DB504A", # cedarchest
+      legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
+    )
+  ) %>% 
+  dplyr::relocate(new_id:recreation, legend, pt_color)
 
 saveRDS(scores_no_sf, paste0(final_path, "/lhd_score.rds"))
 
@@ -122,7 +170,27 @@ scores_long <-
       category == "recreation"      ~ "Recreation"
     )
   ) %>% 
-  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score) 
+  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score) %>% 
+  dplyr::left_join(
+    owner_type,
+    by = "new_id"
+  ) %>% 
+  dplyr::mutate(
+    pt_color = dplyr::case_when(
+      legend == "Private"              ~ "#FB8B24", # dark orange
+      legend == "Private Conservation" ~ "#0C7C59", # spanish viridian
+      legend == "State"                ~ "#2B303A", # gunmental grey
+      legend == "NGO/Land Trust"       ~ "#BE95C4", # lilac
+      legend == "USFS"                 ~ "#F06449", # orange soda 
+      legend == "Local"                ~ "#58A4B0", # cadet blue
+      legend == "USFWS"                ~ "#392F5A", # space cadet  
+      legend == "BLM"                  ~ "#A5F8D3", # magic mint
+      legend == "NPS"                  ~ "#E2D686", # flax yellow
+      legend == "Federal"              ~ "#DB504A", # cedarchest
+      legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
+    )
+  ) %>% 
+  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score, legend, pt_color) 
 
 saveRDS(scores_long, paste0(final_path, "/lhd_score_tidy.rds"))
 
@@ -164,7 +232,27 @@ score_norm <-
   dplyr::group_by(category) %>% 
   dplyr::mutate(score_std = normalize(score)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::mutate(across(where(is.numeric), round, 4)) 
+  dplyr::mutate(across(where(is.numeric), round, 4)) %>% 
+  dplyr::left_join(
+    owner_type,
+    by = "new_id"
+  ) %>% 
+  dplyr::mutate(
+    pt_color = dplyr::case_when(
+      legend == "Private"              ~ "#FB8B24", # dark orange
+      legend == "Private Conservation" ~ "#0C7C59", # spanish viridian
+      legend == "State"                ~ "#2B303A", # gunmental grey
+      legend == "NGO/Land Trust"       ~ "#BE95C4", # lilac
+      legend == "USFS"                 ~ "#F06449", # orange soda 
+      legend == "Local"                ~ "#58A4B0", # cadet blue
+      legend == "USFWS"                ~ "#392F5A", # space cadet  
+      legend == "BLM"                  ~ "#A5F8D3", # magic mint
+      legend == "NPS"                  ~ "#E2D686", # flax yellow
+      legend == "Federal"              ~ "#DB504A", # cedarchest
+      legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
+    )
+  ) %>% 
+  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score, score_std, legend, pt_color) 
 
 saveRDS(score_norm, paste0(final_path, "/lhd_score_normal.rds"))
 

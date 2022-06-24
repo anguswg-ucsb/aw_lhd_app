@@ -1,5 +1,5 @@
 ---
-title: "Low Head Damn Scoring"
+title: "Low Head Dams"
 output:
   flexdashboard::flex_dashboard:
     navbar: null
@@ -19,11 +19,13 @@ library(dplyr)
 library(leaflet)
 library(sf)
 library(rgdal)
-library(knitr)
+library(RColorBrewer)
+library(viridisLite)
+# library(knitr)
 library(ggplot2)
 library(plotly)
 # library(flextable)
-library(reactable)
+# library(reactable)
 
 # knitr::opts_chunk$set(echo = FALSE, ft_max_row = 6, tab.topcaption=FALSE, ft.align="left")
 
@@ -337,7 +339,7 @@ rank_scores <- shiny::reactive({
 
 ```
 
-Low Head Dams
+Scoring
 =================================================
 Row {data-height=400}
 -----------------------------------------------------------------------
@@ -372,7 +374,7 @@ shiny::observeEvent(input$lhdMap_marker_click, {
       shiny::updateSelectizeInput(
         session,
         inputId  = "selected_locations",
-        label    = "selected",
+        label    = "Selected",
         choices  = unique(score_norm$new_id),
         selected = selected$groups)
     }
