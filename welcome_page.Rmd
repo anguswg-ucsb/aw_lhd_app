@@ -1,0 +1,113 @@
+---
+title: "Colorado low head dam prioritization tool"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include = FALSE}
+# source("utils/find_google_drive.R") # drive_dir
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+
+## About this project
+
+A total of 1,103 low-head dams in Colorado have been inventoried and documented on an interactive public map ([Colorado Low Head Dam Inventory](https://dnr.colorado.gov/initiatives/colorado-low-head-dams)). Several of these low-head dams (LHDs) have a clear economic utility, serving agricultural, mining, and/or industrial needs. However, many of these low-head dams also pose a public safety hazard, disrupt recreational opportunities, are rendered obsolete, and disturb the continuity and function of aquatic ecosystems and associated ecosystem services. A major challenge facing decision makers is identifying which low-head dams are ripe for retrofitting or removal (R/R). In order to aid this decision-making process, a quantitative framework for prioritizing low-head dams must be developed. Such a framework must account for the multi-sector costs and benefits of project investment, and do-so at-scale such that all 1,103 existing low-head dams can be evaluated.
+
+## Impact categories
+
+A literature review and stakeholder surveys revealed six general categories of stakeholder interests when considering an LHD removal: public safety; watershed condition; aquatic habitat; recreation; industrial utility; and financial, management, and institutional considerations. Of these interest domains, the first four (public safety, watershed condition, aquatic habitat, and recreation) are well suited for broad-scale quantitative analysis, allowing first-order estimates of project impact. However, the final two domains – Industrial Utility; and Finance, Management, and Institutional Considerations - are inherently project specific, data-limited, and too difficult to generalize at a state-wide scale. For this reason, our framework only includes four of these six major interest domains, acknowledging that industrial utility, financial, managerial, and institutional considerations need to be accounted for on a project-by-project basis. 
+
+Decisions regarding what considerations will represent the remaining four interest domains are influenced by data availability. For instance, water quality, while an important aspect of aquatic habitat, is not measured uniformly across the state in a way that can be evaluated at every LHD site. 
+The interest domains considered in the framework, each category’s definition, and the data used to quantify each are illustrated below.
+
+<center>
+![](data/app_data/category_defs.png)
+</center>
+
+## Prioritization framework 
+
+Here, we present a framework for prioritizing LHD R/R projects that aims to synthesize the costs and benefits of project investment across a range of stakeholder interests. The framework assesses the **maximum potential impact** of an LHD removal or retrofit project across various interest domains. 
+
+<center>
+![](data/app_data/potential_impact.png)
+</center>
+
+---
+
+**Potential impact describes the relative gain in value stemming from an LHD R/R project, as evaluated across a single or all interest domains.**
+
+An interest domain receiving a high score (largest blue circle) indicates certain conditions where R/R would have the greatest potential impact. This means that the capital invested in implementing the project would be put to good use, in terms of stimulating beneficial outcomes. An interest domain receiving a low score (smallest blue circle) indicates conditions where a R/R would do little to push the needle toward a maximum future value/state. A suite of data-driven quantitative metrics underlies the scoring system. Score interpretations for each interest domain is summarized in the table below. 
+
+<center>
+![](data/app_data/score_interp.png)
+</center>
+
+## How to use the dashboard
+
+This dashboard is an interactive tool that displays each inventoried low head dam and its scores across all interest domains. Explore summaries of the inventory using the maps, data table, or plots. Manipulate how composite scores are calculated to reflect preferences on domain importance.
+
+**Scoring tab**
+
+*Use this tab if you want to view one (or a few) LHDs and their score breakdown, including the LHD’s position among all other LHDs’ scores.*
+
+1.	Use the left-hand panel to determine which interest domains you wish to include in the analysis and how each interest domain is weighted in the total score. 
+
+2.	Select an LHD on the map to view the score breakdown for each interest domain. You may also select an LHD by clicking on a point in the Rank plot, on the bottom right, or by typing in an LHD ID number in the text box.
+
+
+**Ranking tab**
+
+*Use this tab if you want to view a list of top LHD scores, ranked by total score or by one of the interest domains.*
+
+1.	Use the left-hand panel to determine which interest domains you wish to include in the analysis and how each interest domain is weighted in the total score. For example, if you want to view only the top 25 public safety LHDs, uncheck the other interest domain boxes. 
+
+2.	The data table shows the low head dams with the top 25 total scores, according to the selections in the left-hand panel. Select the rows to view their locations in the map.
+
+***Proceed to the next tabs to access dashboard***
+
+## Detailed Quantitative Methods
+
+Quantitative metrics provide actionable information to assist in R/R projects. Some of the methods we use to quantify LHD structures have been vetted and used in existing analytical frameworks (Lacy, 2020; SARP, 2022). We build on these individual frameworks and quantitatively assess project potential in each interest domain using appropriate data. For more detailed information about the analysis methods, please see the [source code repository](https://github.com/rachel-lynker/lhd_analysis) for this project.
+
+The public safety interest domain is quantified by the level of danger an LHD structure presents to humans. Our evaluation of public safety impact is based on three core concepts: 1) historical incident reports, 2) the potential for dangerous submerged hydraulic jumps to manifest near the structure, and 3) the proximity of the structure to major population centers and popular recreational reaches. Historical incident reports of known injuries and fatalities at LHDs provide direct evidence of LHD danger. The presence and persistence of submerged hydraulic jumps, which can entrain humans and cause drowning or serious injury, are evaluated using structural categorizations and attributes and satellite imagery of the structures. The proximity of an LHD to a population center or popular recreational reach help us understand the likelihood that humans are in contact with the structure and its intrinsic dangers. Population proximity may be evaluated using U.S. census data and rudimentary geospatial analysis techniques, and recreational reaches are determined by American Whitewater reaches and Colorado Parks and Wildlife fishing locations. 
+
+River network connectivity is a core concept underlying our proposed approaches for evaluating project impact to watershed quality, aquatic habitat and recreation. River network connectivity refers to the network of interconnected waterways (and their attributes) between structural breakpoints. Delineating connected networks adjacent to LHDs can be done with the National Hydrography Dataset (NHDPlus), which provides a high-resolution mapping of the U.S. river and stream network (U.S. Geological Survey, 2019). Using graph analysis computational techniques, we can identify the extent of connected river networks as they exist now and as they may be in the future following R/R project investment. For example, consider the river network in Figure 3A with three LHDs situated along the mainstem. In this network, LHD 2 acts as a connectivity barrier dividing the black network (between LHD 3 and 2) and the gray network (between LHD 2 and 1). If LHD 2 were to be removed, as is shown in Figure 3B, the newly connected area, shown in green, is the sum of the previously divided gray and black networks. The potentially connected network extent in Figure 3B provides a domain extent for subsequent analyses of geomorphic, ecological, hydrological, and recreational attributes of constituent river segments.
+
+<center>
+![](data/app_data/connectivity.png)
+</center>
+
+---
+
+**A segmented river network showing LHDs 1, 2, and 3; B) total connected river network in green between LHD 1 and LHD 3 if LHD 2 were removed**
+
+Watershed condition describes the physical and biological integrity of the watershed. Our evaluation of watershed condition impact is based on four main concepts: 1) network connectivity, as described previously, 2) network complexity, 3) natural landcover, and 4) channel alteration, all of which have been adapted from the Aquatic Barrier Prioritization Tool (SARP, 2022). The diversity of stream order within the connected network measures the level of complexity in the watershed. A more complex network allows for a greater range of habitat and species. Network complexity is evaluated using the NHDPlus network by assigning segments to class sizes based on total drainage area. Watershed condition is also influenced by the amount of natural land cover in the watershed, as LHDs surrounded by fewer impervious surfaces are more likely to contribute to higher quality habitat if a R/R were to occur. Natural land cover is derived from the USDA National Landcover Database (NCLD) and measured from the overall percent of natural land cover throughout the entire connected network. Lastly, channel alteration is a measure of how altered a waterway is compared to natural conditions. Highly channelized reaches have a lower variety and quality of instream habitat. We evaluate channel alteration by identifying reach segments coded as canals or ditches in the NHDPlus HR dataset, and then calculating the percent of altered lengths by the total length of the connected network. 
+
+Aquatic biota is a prime indicator of overall stream health (Herman and Nejadhashemi, 2015). Thus, the extent of quality habitable waters for endangered species, trout, and other aquatic biota in Colorado waters is an important consideration in LHD R/R projects. To evaluate the aquatic habitat interest domain, we propose the following considerations: 1) network connectivity, as described above, and 2) cumulative habitat condition indices (HCI). Habitat condition indices exist for every river reach in the coterminous United States, and measure aquatic habitat quality while considering human disturbances and the natural landscape. We quantify aquatic habitat condition by averaging HCI scores for every river segment upstream of each LHD. 
+
+The recreation interest domain quantifies the abundance of quality recreational opportunities. In addition to network connectivity, which would allow for uninterrupted boat passage, we also evaluate this interest domain by considering the proximity of LHDs to river access points and existing popular recreation reaches (whitewater stretches and gold medal waters), as well as to a town or city center. Successful whitewater parks built within the last 30 years are often built near population centers who regularly seek them out. Therefore, this domain may be evaluated simply by proximity to recreational reaches (such as documented American Whitewater segments and the Colorado Parks and Wildlife Gold Medal Fishing waters) and State of Colorado municipal boundaries.  
+
+In order to compare an LHD’s potential impact to another, we synthesize the individual impact scores into a composite, total score. Interest domains can be weighted more or less in a composite score, based on user institutional or structural knowledge about the LHD of interest. An evaluation of the net impacts of a portfolio of LHDs can give decision makers the ability to identify groups of LHDs that may not receive high impact scores individually, but could approach a maximum future value if all underwent a R/R project. This scenario is conceivable when there are multiple LHDs close to each other on a single stretch of river, and removing all of them could significantly increase network connectivity and the potential impact across all interest domains.
+
+### Data Considerations and Limitations
+
+This framework and dashboard are decision support tools, not decision makers. Capital investment decisions are situationally unique and multifactorial. The framework is surely unable to quantitatively capture all of the considerations behind any one project. However, the framework does offer a generalizable platform for comparing and contrasting many potential projects across the state that may be useful in the process of investment triage. In other words, the framework provides a mechanism to identify a short (or long-short) list of projects that warrant deeper consideration. 
+
+The Colorado LHD Inventory contained structure category designations Diversion Dam, Grade Control Structures, and Recreation. While all Recreation dams were confirmed and removed from the analysis, it must be noted that a thorough investigation of the remaining two categories, Diversion Dam and Grade Control Structure was not done. The Colorado LHD Inventory identified Diversion Dams as the most dangerous, as they are most likely built with a vertical face that can create a submerged hydraulic jump. A cursory pass through of some LHDs found some mis-categorization some LHDs between the first two categories, with some Grade Control Structures mislabeled as Diversion Dams and vise versa. Therefore, scoring an LHD based on this categorization would have been misleading, potentially lowering the score of a dangerous LHD. Further work correctly categorizing LHDs based on submerged hydraulic jump potential should be completed.
+
+Certain data limitations exist that prevent some factors of an interest domain to be fully quantified. Therefore, each domain is quantified based on best available state-wide data that best represents each consideration. For instance, some aquatic measurements of biotic health, such as species richness and presence of invasive species, are not comprehensive enough to adequately include in the framework. Therefore, institutional knowledge of known invasive or endangered species should be considered in concert with the prioritization scoring framework.
+
+## References
+
+Aquatic Barrier Prioritization Tool. (2020). *Southeast Aquatic Resources Partnership.* https://connectivity.sarpdata.com/
+
+Herman, M. R., & Nejadhashemi, A. P. (2015). A review of macroinvertebrate-and fish-based stream health indices. *Ecohydrology & Hydrobiology, 15*(2), 53-67.
+
+Lacy, S.W. (2020). *INTRODUCING A CALIFORNIA LOW-HEAD DAM INVENTORY METHODOLOGY.* [Unpublished Master's Thesis]. University of California Berkley. http://riverlab.berkeley.edu/wp/wp-content/uploads/Spencer-Lacy-Capstone_-California-Low-Head-Dams.pdf
+
+U.S. Geological Survey. (2019). National Hydrogophy Dataset. (Ver. USGS National Hydrography Dataset High Resolution (NHD) for Hydrologic Unit (HU) 4  (Published 20191002). https://www.usgs.gov/national-hydrography/access-national-hydrography-products
+
+Zimmer, S. (2019). Colorado Low Head Dam Inventory Project. *University of Colorado, Denver.* https://drive.google.com/file/d/12ZIjQ-4kRxg8ni9ecTHq5dc-DjxdVLkq/view

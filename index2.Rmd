@@ -1,10 +1,10 @@
 ---
-title: "Low Head Damn Scoring"
+title: "Low Head Dams"
 output:
   flexdashboard::flex_dashboard:
     navbar: null
     theme: yeti
-    orientation: columns
+    orientation: rows
     vertical_layout: fill
     logo: www/lynker_logo_white_transparent.png
     css: www/custom.css
@@ -19,7 +19,9 @@ library(dplyr)
 library(leaflet)
 library(sf)
 library(rgdal)
-library(knitr)
+library(RColorBrewer)
+library(viridisLite)
+# library(knitr)
 library(ggplot2)
 library(plotly)
 # library(flextable)
@@ -54,11 +56,12 @@ score_norm  <- readRDS("data/app_data/lhd_score_normal.rds") %>%
 score_tidy  <- readRDS("data/app_data/lhd_score_tidy.rds")
 
 cat_lst       <- c("aquatic_health", "watershed_cond", "public_health", "recreation")
-clean_cat_lst <- c("Aquatic Health","Watershed Condition", "Public Health", "Recreation")
+clean_cat_lst <- c("Aquatic Health","Watershed Condition", "Public Safety", "Recreation")
 
 # water rights tab
 output$lhdMap          <- renderLeaflet({ basemap(pts = score_pts) })
 
+# output$tableMap        <- renderLeaflet({ basemap(pts = score_pts) })
 ```
 
 
@@ -89,7 +92,7 @@ shiny::checkboxGroupInput(
     choices  = c(
               "Aquatic Health"       = "aquatic_health",
               "Watershed Condition"  = "watershed_cond",
-              "Public Health"        = "public_health",
+              "Public Safety"        = "public_health",
               "Recreation"           = "recreation"
               ),
     selected = c("aquatic_health", "watershed_cond", "public_health", "recreation")
@@ -113,7 +116,7 @@ shiny::numericInput(
 
 shiny::numericInput(
   inputId = "phWeight", 
-  label   = "Public Health weight:",
+  label   = "Public Safety weight:",
   value   = 1, 
   min     = 0,
   max     = 20
@@ -129,13 +132,14 @@ shiny::numericInput(
 # shiny::textOutput("scoreButtonText")
 # shiny::verbatimTextOutput("meanLHD")
 # 
-# shiny::verbatimTextOutput("idText")
+shiny::verbatimTextOutput("idText")
 # 
 # shiny::verbatimTextOutput("ahWeightText")
 # 
 # shiny::verbatimTextOutput("wsWeightText")
 
 ```
+
 
 ```{r context="server"}
 # ---- Reactive values ----
@@ -184,7 +188,7 @@ category_weights <- shiny::reactive({
     
     weights_df <- 
       data.frame(
-        category = c("Aquatic Health", "Watershed Condition", "Public Health", "Recreation"), 
+        category = c("Aquatic Health", "Watershed Condition", "Public Safety", "Recreation"), 
          # weights  = c(1, 2, 1, 3)
         weights  = c(input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
       ) %>% 
@@ -204,7 +208,8 @@ mean_scores <- shiny::reactive({
     dplyr::filter(category %in% score_buttons()) %>%
     # dplyr::filter(new_id %in% c(1, 156, 484, 784, 5, 9, 7)) %>%
     # dplyr::filter(category %in% c(
-    # "aquatic_health", "recreation", "watershed_cond"# "public_health"
+    # "aquatic_health", "recreation", "watershed_cond"
+    #                             # "public_health"
     #                             )) %>%
     dplyr::group_by(clean_cat_id) %>% 
     dplyr::summarize(mean_score = mean(score, na.rm = T)) %>% 
@@ -230,8 +235,8 @@ mean_scores <- shiny::reactive({
     ) %>% 
     dplyr::mutate(across(where(is.numeric), round, 2 )) %>% 
     dplyr::mutate(
-      # clean_cat_id = factor(clean_cat_id, levels = c("Aquatic Health", "Watershed Condition", "Public Health", "Recreation")),
-      clean_cat_id = factor(clean_cat_id, levels = c("Recreation", "Public Health",
+      # clean_cat_id = factor(clean_cat_id, levels = c("Aquatic Health", "Watershed Condition", "Public Safety", "Recreation")),
+      clean_cat_id = factor(clean_cat_id, levels = c("Recreation", "Public Safety",
                                                      "Watershed Condition", "Aquatic Health")),
       Percent          = case_when(
         is.nan(Percent) ~ 0,
@@ -239,27 +244,42 @@ mean_scores <- shiny::reactive({
         )
       )
     df_mean
-
+  # bind rows with missing category and calculate percent of total score
+  # df_mean <- 
+  #   df %>% 
+  #   dplyr::bind_rows(empty_score) %>% 
+  #   dplyr::mutate(
+  #     pct = 100*(mean_score/sum(mean_score))
+  #   ) %>% 
+  #   dplyr::mutate(across(where(is.numeric), round, 2 )) %>% 
+  #   dplyr::mutate(
+  #     clean_cat_id = factor(clean_cat_id, levels = c("Recreation", "Public Safety", 
+  #                                                    "Watershed Condition", "Aquatic Health")),
+  #     pct          = case_when(
+  #       is.nan(pct) ~ 0,
+  #       TRUE        ~ pct
+  #       )
+  #     )
+  
+  # df_mean
   
   })
 
-# Reactive Aquatic Health score value
+# Reactive mean score values
 ahScore <- shiny::reactive({
     dplyr::filter(mean_scores(), clean_cat_id == "Aquatic Health")$mean_score 
 })
-# Reactive Watershed condition score value
+
 wsScore <- shiny::reactive({
     dplyr::filter(mean_scores(), clean_cat_id == "Watershed Condition")$mean_score 
 })
 
-# Reactive Recreation score value
 recScore <- shiny::reactive({
     dplyr::filter(mean_scores(), clean_cat_id == "Recreation")$mean_score 
 })
 
-# Reactive Public Health score value
 phScore <- shiny::reactive({
-    dplyr::filter(mean_scores(), clean_cat_id == "Public Health")$mean_score 
+    dplyr::filter(mean_scores(), clean_cat_id == "Public Safety")$mean_score 
 })
 
 # Reactive total score value
@@ -288,6 +308,53 @@ rank_scores <- shiny::reactive({
     dplyr::arrange(total_score) %>%
     dplyr::mutate(rank = rank(total_score)) 
 })
+
+category_ranks <- shiny::reactive({
+  # Rank LHD scores and plot
+  category_df <-
+    score_norm %>%
+    dplyr::filter(category %in% score_buttons()) %>%
+    # dplyr::filter(category %in% c("aquatic_health", "recreation",
+    #                               "watershed_cond", "public_health")) %>%
+    dplyr::left_join(
+      category_weights(),
+      # weights_df,
+      by = c("clean_cat_id" = "category")
+      ) %>%  
+    dplyr::mutate(score = score*weights) %>% 
+    dplyr::mutate(across(where(is.numeric), round, 3)) %>% 
+    dplyr::mutate(
+      clean_cat_id = factor(clean_cat_id, levels = c("Recreation", "Public Safety",
+                                                     "Watershed Condition", "Aquatic Health")))
+
+})
+
+
+top_rank <- shiny::reactive({
+  
+  # Top 25 LHD scores
+  score_norm %>%
+    dplyr::filter(category %in% score_buttons()) %>%
+    # dplyr::filter(category %in% c("aquatic_health", "recreation",
+                                  # "watershed_cond", "public_health")) %>%
+    dplyr::left_join(
+      category_weights(),
+      # weights_df,
+      by = c("clean_cat_id" = "category")
+      ) %>%  
+    dplyr::mutate(score = score*weights) %>%
+    dplyr::group_by(new_id) %>%
+    dplyr::mutate("Total Score" = sum(score, na.rm = T)) %>%
+    # dplyr::select(new_id, category, clean_cat_id, score, "Total Score") %>% 
+    tidyr::pivot_wider(id_cols = c("Total Score", new_id), names_from = clean_cat_id, values_from = score) %>% 
+    tidyr::pivot_longer(cols = -new_id) %>% 
+    tidyr::pivot_wider(names_from = name, values_from = value) %>% 
+    dplyr::ungroup() %>%
+    dplyr::arrange(`Total Score`) %>% 
+    dplyr::slice(1:25)
+
+  
+})
 ```
 
 ```{r context="server"}
@@ -296,173 +363,33 @@ rank_scores <- shiny::reactive({
 #     # print(mean_scores())
 #   # print(rank_scores())
 #   print(category_weights())
-# print(dplyr::filter(mean_scores(), clean_cat_id == "Watershed Condition")$mean_score ) })
-
+#          # print(dplyr::filter(mean_scores(), clean_cat_id == "Watershed Condition")$mean_score )
+#   })
 # # Test output
-# output$idText <- renderPrint({
-#     # print(selected$groups)
-#     print(event_trigger()) })
+output$idText <- renderPrint({
+
+    print(top_rank())
+    # print(event_trigger())
+  })
 # 
 # # Test output
 # output$ahWeightText <- renderPrint({
-#     print(input$ahWeight)})
+#   
+#     print(input$ahWeight)
+#     
+#   })
 # 
 # output$wsWeightText <- renderPrint({
-#     print(input$wsWeight)})
+#   
+#     print(input$wsWeight)
+#     
+#   })
+
 ```
 
-Low Head Dams
+Scoring
 =================================================
-Column {data-width=300}
------------------------------------------------------------------------
-###
-```{r}
-# Watershed Condition value box output
-flexdashboard::valueBoxOutput("watershedBox")
-```
-
-###
-```{r}
-# Public Health value box output
-flexdashboard::valueBoxOutput("phBox")
-```
-
-###
-```{r}
-# Recreation value box output
-flexdashboard::valueBoxOutput("recBox")
-```
-
-###
-```{r}
-# Recreation value box output
-flexdashboard::valueBoxOutput("totalScoreBox")
-```
-
-```{r}
-# # Aquatic Health value box start
-output$ahBox <-  flexdashboard::renderValueBox(
-                     flexdashboard::valueBox(
-                      value   = "",
-                      caption = "Aquatic Health",
-                      color   = "primary"
-                  )
-                )
-
-# Watershed Condition value box start
-output$watershedBox <-  flexdashboard::renderValueBox(
-                     flexdashboard::valueBox(
-                      value   = "",
-                      caption = "Watershed condition",
-                      color   = "success"
-                  )
-                )
-
-# Public Health value box start 
-output$phBox <-  flexdashboard::renderValueBox(
-                     flexdashboard::valueBox(
-                      value   = "",
-                      caption = "Public Health",
-                      color   = "danger"
-                  )
-                )
-
-# Public Health value box start 
-output$recBox <-  flexdashboard::renderValueBox(
-                     flexdashboard::valueBox(
-                      value = "",
-                      caption = "Recreation",
-                      color = "warning"
-                  )
-                )
-# Public Health value box start 
-output$totalScoreBox <-  flexdashboard::renderValueBox(
-                     flexdashboard::valueBox(
-                      value = "",
-                      caption = "Total Score",
-                      color = "#dcdcdc"
-                  )
-                )
-
-
-# Value box server
-shiny::observeEvent(input$selected_locations, {
-  
-      # Aquatic health value box server
-      output$ahBox <- flexdashboard::renderValueBox(
-        flexdashboard::valueBox(
-          value    = paste0(ahScore()),
-           caption = "Aquatic Health",
-          color    = "primary"
-          )
-        )
-      
-      # Watershed condition value box server
-      output$watershedBox <- flexdashboard::renderValueBox(
-        flexdashboard::valueBox(
-          value   = paste0(wsScore()),
-          caption = "Watershed condition",
-          color   = "success"
-          )
-        )
-      # Public health value box server
-      output$phBox <- flexdashboard::renderValueBox(
-        flexdashboard::valueBox(
-          value = paste0(phScore()),
-          caption = "Public Health",
-          color = "danger"
-          )
-        )
-    
-      # Recreation value box server
-      output$recBox <- flexdashboard::renderValueBox(
-        flexdashboard::valueBox(
-          value = paste0(recScore()),
-          caption = "Recreation",
-          color = "warning"
-          )
-        )
-      
-         # Recreation value box server
-      output$totalScoreBox <- flexdashboard::renderValueBox(
-        flexdashboard::valueBox(
-          value   = paste0(totalScore()),
-          caption = "Total Score",
-          color   = "#dcdcdc"
-          )
-        )
-}
-)
-```
-
-### Percent plot
-```{r}
-shiny::plotOutput("meanScorePlot")
-# plotly::plotlyOutput("meanScorePlot",  width = "100%", height = "100%")
-```
-
-```{r context="server"}
-# Percent of total score plot server
-# shiny::observeEvent(input$selected_locations, {
-shiny::observeEvent(event_trigger(), {
-  
-  output$meanScorePlot <- shiny::renderPlot({
-  # output$meanScorePlot <- plotly::renderPlotly({
-   score_mean_plot(df = mean_scores())
-     # plotly::ggplotly(score_mean_plot(df = mean_scores()), tooltip =  c("y")) %>%
-     #  plotly::style(hoverlabel = label) %>%
-     #  plotly::layout( font = font  )
-  })
-  
-  # .section level3 chart-wrapper chart-wrapper-flex {
-    # flex: 100 0px; }
-  
-  # img{ # max-width:100px;
-     # max-height:100px;}
-})
-```
-
-Column {data-width=400}
+Row {data-height=400}
 -----------------------------------------------------------------------
 ###
 ```{r}
@@ -495,7 +422,7 @@ shiny::observeEvent(input$lhdMap_marker_click, {
       shiny::updateSelectizeInput(
         session,
         inputId  = "selected_locations",
-        label    = "selected",
+        label    = "Selected",
         choices  = unique(score_norm$new_id),
         selected = selected$groups)
     }
@@ -557,7 +484,8 @@ shiny::observeEvent(input$lhdMap_marker_click , {
               crs = 4326
               )
           
-          # LHD ID value box
+     
+         # LHD ID value box
           # output$idBox <- flexdashboard::renderValueBox(
           #   flexdashboard::valueBox(
           #     value = paste0("LHD ID: ", lhd_id()),
@@ -569,66 +497,303 @@ shiny::observeEvent(input$lhdMap_marker_click , {
 )
 
 ```
+Row {data-height=100}
+-----------------------------------------------------------------------
+###
+```{r}
+# Aquatic Health value box output
+flexdashboard::valueBoxOutput("ahBox")
+```
+
+###
+```{r}
+# Watershed Condition value box output
+flexdashboard::valueBoxOutput("watershedBox")
+```
+
+###
+```{r}
+# Public Safety value box output
+flexdashboard::valueBoxOutput("phBox")
+```
+
+###
+```{r}
+# Recreation value box output
+flexdashboard::valueBoxOutput("recBox")
+```
+
+###
+```{r}
+# Recreation value box output
+flexdashboard::valueBoxOutput("totalScoreBox")
+```
+
+```{r}
+# # Aquatic Health value box start
+output$ahBox <-  flexdashboard::renderValueBox(
+                     flexdashboard::valueBox(
+                      value   = "-",
+                      icon    = "fa-fish",
+                      caption = "Aquatic Health",
+                      color   = "primary"
+                  )
+                )
+
+# Watershed Condition value box start
+output$watershedBox <-  flexdashboard::renderValueBox(
+                     flexdashboard::valueBox(
+                      value   = "-",
+                      icon    = "fa-tree",
+                      caption = "Watershed condition",
+                      color   = "success"
+                  )
+                )
+
+# Public Safety value box start 
+output$phBox <-  flexdashboard::renderValueBox(
+                     flexdashboard::valueBox(
+                      value   = "-",
+                 icon    = "fa-plus-circle",
+                      caption = "Public Safety",
+                      color   = "danger"
+                  )
+                )
+
+# Public Safety value box start 
+output$recBox <-  flexdashboard::renderValueBox(
+                     flexdashboard::valueBox(
+                      value = "-",
+                      icon    = "fa-swimmer",
+                      caption = "Recreation",
+                      color = "warning"
+                  )
+                )
+
+# Total score value box start 
+output$totalScoreBox <-  flexdashboard::renderValueBox(
+                     flexdashboard::valueBox(
+                      value = "-",
+                      caption = "Total Score",
+                      color = "#dcdcdc"
+                  )
+                )
+
+# Value box server
+shiny::observeEvent(input$selected_locations, {
+# shiny::observeEvent(event_trigger(), {
+      # Aquatic health value box server
+      output$ahBox <- flexdashboard::renderValueBox(
+        flexdashboard::valueBox(
+          value    = paste0(ahScore()),
+              icon    = "fa-fish",
+           caption = "Aquatic Health",
+          color    = "primary"
+          )
+        )
+      
+      # Watershed condition value box server
+      output$watershedBox <- flexdashboard::renderValueBox(
+        flexdashboard::valueBox(
+          value   = paste0(wsScore()),
+          icon    = "fa-tree",
+          caption = "Watershed condition",
+          color   = "success"
+          )
+        )
+      # Public Safety value box server
+      output$phBox <- flexdashboard::renderValueBox(
+        flexdashboard::valueBox(
+          value = paste0(phScore()),
+          icon    = "fa-plus-circle",
+          caption = "Public Safety",
+          color = "danger"
+          )
+        )
+      
+      # Recreation value box server
+      output$recBox <- flexdashboard::renderValueBox(
+        flexdashboard::valueBox(
+          value = paste0(recScore()),
+          icon    = "fa-swimmer",
+          caption = "Recreation",
+          color = "warning"
+          )
+        )
+      # Total score value box server
+      output$totalScoreBox <- flexdashboard::renderValueBox(
+        flexdashboard::valueBox(
+          value   = paste0(totalScore()),
+          caption = "Total Score",
+          color   = "#dcdcdc"
+          )
+        )
+}
+)
+```
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+### Score breakdown
+```{r}
+# shiny::plotOutput("meanScorePlot")
+plotly::plotlyOutput("meanScorePlot")
+```
+
+```{r context="server"}
+# Percent of total score plot server
+shiny::observeEvent(input$selected_locations, {
+# shiny::observeEvent(event_trigger(), {
+  
+  # output$meanScorePlot <- shiny::renderPlot({
+  output$meanScorePlot <- plotly::renderPlotly({
+    score_mean_plot(df = mean_scores(), interactive = TRUE)
+  
+  })
+  
+  # .section level3 chart-wrapper chart-wrapper-flex {
+    # flex: 100 0px; }
+  
+  # img{ # max-width:100px;
+     # max-height:100px;}
+})
+```
 
 ### Rank 
 ```{r}
 # LHD Scoring rank plot
-# plotly::plotlyOutput("rankPlot")
-shiny::plotOutput("rankPlot")
+plotly::plotlyOutput("rankPlot")
+# shiny::plotOutput("rankPlot")
 ```
 
 ```{r context="server"}
-
-# LHD ID value box server
-# output$totalScoreBox <-  flexdashboard::renderValueBox(
-#                      flexdashboard::valueBox(
-#                       value = "Total Score: ",
-#                       color = "danger"
-#                   )
-#                 )
-
-
-     # LHD ID value box
-     # output$totalScoreBox <- flexdashboard::renderValueBox(
-     #   flexdashboard::valueBox(
-     #     value = paste0("Total Score: ", tot_score$score),
-     #          # value = paste0("District ", district_id$district),
-     #          color = "danger"
-     #          )
-     #        )
-
 shiny::observeEvent(event_trigger(), {
-  
+
     # Ranked LHD scores plot
-    rank_plot <-
-      ggplot() +
-         geom_point(data = dplyr::filter(rank_scores(), !new_id %in% selected$groups),
-                   aes(x = rank, y = total_score), color = "black") +
-        geom_point(data = dplyr::filter(rank_scores(), new_id %in% selected$groups),
-                   aes(x = rank, y = total_score), color = "red", size = 3) +
-        labs(
-          x = "Score Rank",
-          y = "Total Score"
-        )  +
-        # scale_y_continuous(breaks = seq(0, 10, by = 2), limits = c(0, 10, 2)) +
-        scale_y_continuous(breaks =  seq(0, (max(rank_scores()$total_score) + 1), by = 1), 
-                       limits = c(0, (max(rank_scores()$total_score) + 1), 1),
-                       expand = c(0, 0)) +
-        apatheme
-    
-    # # Plotly plot
-    # rank_plotly <- rank_plot %>% plotly::ggplotly(tooltip =  c("x", "y")) 
 
     # Render LHD rank plotly plot
-    # output$rankPlot <- plotly::renderPlotly({
+    output$rankPlot <- plotly::renderPlotly({
        # rank_plotly
-       output$rankPlot <- shiny::renderPlot({
-         rank_plot
+       # output$rankPlot <- shiny::renderPlot({
+             # Ranked LHD scores plot
+             score_rank_plot(
+               df          = rank_scores(),
+               lhd_ids     = selected$groups,
+               interactive = TRUE
+               )
    
     })
- # }
-
+  # }
 })
-
-
 ```
+
+<!-- Data Table -->
+<!-- ================================================= -->
+<!-- Row {data-height=400} -->
+<!-- ----------------------------------------------------------------------- -->
+<!-- ### -->
+<!-- ```{r} -->
+<!-- # LHD leaflet output -->
+<!-- leaflet::leafletOutput("tableMap") -->
+<!-- ``` -->
+
+<!-- ```{r context="server"} -->
+
+<!-- proxy <- leaflet::leafletProxy("tableMap") -->
+
+<!-- selected <- shiny::reactiveValues(groups = vector()) -->
+
+<!-- shiny::observeEvent(input$lhdMap_marker_click, { -->
+<!--       if(input$lhdMap_marker_click$group == "regions") { -->
+
+<!--         selected$groups <- c(selected$groups, input$lhdMap_marker_click$id) -->
+
+<!--           proxy %>% -->
+<!--             leaflet::showGroup(group = input$lhdMap_marker_click$id) -->
+
+<!--       } else { -->
+
+<!--         selected$groups <- setdiff(selected$groups, input$lhdMap_marker_click$group) -->
+
+<!--         proxy %>%  -->
+<!--           leaflet::hideGroup(group = input$lhdMap_marker_click$group) -->
+
+<!--       } -->
+<!--       shiny::updateSelectizeInput( -->
+<!--         session, -->
+<!--         inputId  = "selected_locations", -->
+<!--         label    = "Selected", -->
+<!--         choices  = unique(score_norm$new_id), -->
+<!--         selected = selected$groups) -->
+<!--     } -->
+<!--     )  -->
+
+
+<!-- shiny::observeEvent(input$selected_locations, { -->
+
+<!--       # Points removed by selection input -->
+<!--       removed_via_selectInput <- setdiff(selected$groups, input$selected_locations) -->
+
+<!--       # Points added by selection input -->
+<!--       added_via_selectInput   <- setdiff(input$selected_locations, selected$groups) -->
+
+<!--       if(length(removed_via_selectInput) > 0) { -->
+
+<!--         selected$groups <- input$selected_locations -->
+
+<!--         proxy %>%  -->
+<!--           leaflet::hideGroup(group = removed_via_selectInput) -->
+
+<!--       } -->
+
+<!--       if(length(added_via_selectInput) > 0){ -->
+
+<!--         selected$groups <- input$selected_locations -->
+
+<!--         proxy %>%  -->
+<!--           leaflet::showGroup(group = added_via_selectInput) -->
+<!--       } -->
+
+<!--        # print(dplyr::filter(mean_scores(), clean_cat_id == "Watershed Condition")$mean_score ) -->
+<!--     },  -->
+<!--     ignoreNULL = FALSE -->
+<!--     )  -->
+
+<!-- # LHD ID value box server -->
+<!-- # output$idBox <-  flexdashboard::renderValueBox( -->
+<!-- #                      flexdashboard::valueBox( -->
+<!-- #                       value = "LHD ID: ", -->
+<!-- #                       color = "primary" -->
+<!-- #                   ) -->
+<!-- #                 ) -->
+
+<!-- # Observe Leaflet map marker clicks -->
+<!-- # Value box server -->
+<!-- shiny::observeEvent(input$lhdMap_marker_click , { -->
+
+<!--           click <- input$lhdMap_click %>% -->
+<!--               data.frame() %>% -->
+<!--               dplyr::select(lat,lng) -->
+
+<!--               print(click) -->
+<!--               print(lhd_id()) -->
+
+<!--           pt <- sf::st_as_sf( -->
+<!--               click, -->
+<!--               coords = c("lng", "lat"), -->
+<!--               crs = 4326 -->
+<!--               ) -->
+
+
+<!--          # LHD ID value box -->
+<!--           # output$idBox <- flexdashboard::renderValueBox( -->
+<!--           #   flexdashboard::valueBox( -->
+<!--           #     value = paste0("LHD ID: ", lhd_id()), -->
+<!--           #     # value = paste0("District ", district_id$district), -->
+<!--           #     color = "primary" -->
+<!--           #     ) -->
+<!--           #   ) -->
+<!-- } -->
+<!-- ) -->
+
+<!-- ``` -->

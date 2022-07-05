@@ -39,6 +39,11 @@
     padding: 0;
 }
 
+.shiny-input-container label {
+    font-size: 14px;
+    padding: 1;
+}
+
 .bg-success {
     background-color:  rgba(34, 139, 34, 0.6);
 }

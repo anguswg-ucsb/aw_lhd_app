@@ -6,18 +6,42 @@ library(highcharter)
 raw_path   <- list.files("data/raw", full.names = T)
 final_path <- "data/app_data"
 
+source('utils.R')
+
+# **************************
+# ---- LHD stream names ----
+# **************************
+
+final_path <- "data/app_data"
+
+lhd_path <- here::here("data", "raw", "Low Head Dam Inventory Final CIM 092920 - Inventory.csv")
+
+# Read in LHD file and select stream names
+stream_names <- readr::read_csv(lhd_path) %>% 
+  janitor::clean_names() %>% 
+  dplyr::rename("lhd_id" = "id") %>% 
+  dplyr::mutate(new_id = 1:dplyr::n()) %>% 
+  dplyr::relocate(new_id) %>% 
+  dplyr::select(new_id, lhd_id, stream_name, water_district) %>% 
+  dplyr::mutate(across(where(is.numeric), as.character))
+
+saveRDS(stream_names, "data/raw/lhd_stream_names.rds")
+
 # ****************************************
 # ---- Summarize & Clean scoring data ----
 # ****************************************
 
+# LHD stream names to join
+stream_names <- readRDS("data/raw/lhd_stream_names.rds")
+
 # LHD scores
-aquatic    <- readRDS(raw_path[1])
-public     <- readRDS(raw_path[4])
-rec        <- readRDS(raw_path[5])
-ws_cond    <- readRDS(raw_path[6])
+aquatic      <- readRDS("data/raw/aquatic_health_score.rds")
+public       <- readRDS("data/raw/public_health_score.rds")
+rec          <- readRDS("data/raw/recreation_score.rds")
+ws_cond      <- readRDS("data/raw/watershed_condition_score.rds")
 
 # Owner type
-owner_type <- readRDS(raw_path[3]) %>% 
+owner_type <- readRDS("data/raw/owner_type.rds") %>% 
   sf::st_drop_geometry() %>% 
   dplyr::select(new_id, legend) %>% 
   dplyr::mutate(new_id = as.character(new_id))
@@ -47,9 +71,13 @@ scores <-
 
 # LHD points and IDs
 lhd_pts <-
-  readRDS(raw_path[2]) %>%
+  readRDS("data/raw/lhd_network_connectivity.rds") %>%
   sf::st_as_sf() %>%
   dplyr::select(new_id, comid, geometry)
+
+# ******************************
+# ---- Score data (SPATIAL) ----
+# ******************************
 
 score_pts <-
   scores %>%
@@ -60,7 +88,7 @@ score_pts <-
   sf::st_transform(4326) %>% 
   dplyr::mutate(across(where(is.numeric), round, 3)) %>% 
   dplyr::relocate(new_id, comid) %>% 
-  setNames(c("new_id", "comid", "connecitivity", "aquatic_health", 
+  setNames(c("new_id", "comid", "connectivity", "aquatic_health", 
              "watershed_cond", "public_health", "recreation", "geometry")) %>% 
   dplyr::mutate(new_id = as.numeric(new_id)) %>% 
   dplyr::arrange(new_id) %>% 
@@ -88,10 +116,24 @@ score_pts <-
       legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
     )
   ) %>% 
-  dplyr::relocate(new_id:recreation, legend, pt_color, geometry)
+  dplyr::relocate(new_id:recreation, legend, pt_color, geometry) %>% 
+  dplyr::left_join(
+    stream_names, 
+    by = "new_id"
+    ) %>% 
+  dplyr::mutate(
+    lng = sf::st_coordinates(.)[,1],
+    lat = sf::st_coordinates(.)[,2]
+  ) %>% 
+  dplyr::relocate(new_id, map_id, lhd_id, water_district, stream_name, comid, connectivity:pt_color, lng, lat)
 
 saveRDS(score_pts, paste0(final_path, "/lhd_score_pts.rds"))
 
+# **********************************
+# ---- Score data (NON SPATIAL) ----
+# **********************************
+
+# Score data, remove geometry
 scores_no_sf <-
   scores %>%
   dplyr::left_join(
@@ -101,7 +143,7 @@ scores_no_sf <-
   sf::st_drop_geometry() %>% 
   dplyr::mutate(across(where(is.numeric), round, 3)) %>% 
   dplyr::relocate(new_id, comid) %>%  
-  setNames(c("new_id", "comid", "connecitivity", "aquatic_health", 
+  setNames(c("new_id", "comid", "connectivity", "aquatic_health", 
              "watershed_cond", "public_health", "recreation")) %>% 
   dplyr::mutate(new_id = as.numeric(new_id)) %>% 
   dplyr::arrange(-new_id) %>% 
@@ -131,9 +173,18 @@ scores_no_sf <-
       legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
     )
   ) %>% 
-  dplyr::relocate(new_id:recreation, legend, pt_color)
+  dplyr::relocate(new_id:recreation, legend, pt_color) %>% 
+  dplyr::left_join(
+    stream_names, 
+    by = "new_id"
+  ) %>% 
+  dplyr::relocate(new_id, map_id, lhd_id, water_district, stream_name)
 
 saveRDS(scores_no_sf, paste0(final_path, "/lhd_score.rds"))
+
+# ***************************
+# ---- Score data (Tidy) ----
+# ***************************
 
 # scores long dataframe 
 scores_long <-  
@@ -145,7 +196,7 @@ scores_long <-
   sf::st_drop_geometry() %>%   
   dplyr::mutate(across(where(is.numeric), round, 3)) %>% 
   dplyr::relocate(new_id, comid) %>% 
-  setNames(c("new_id", "comid", "connecitivity", "aquatic_health", 
+  setNames(c("new_id", "comid", "connectivity", "aquatic_health", 
              "watershed_cond", "public_health", "recreation")) %>% 
   dplyr::mutate(new_id = as.numeric(new_id)) %>% 
   dplyr::arrange(-new_id) %>% 
@@ -157,16 +208,16 @@ scores_long <-
   ) %>% 
   dplyr::relocate(new_id, map_id, comid) %>% 
   tidyr::pivot_longer(
-    cols      = c(connecitivity:recreation),
+    cols      = c(connectivity:recreation),
     names_to  = "category",
     values_to = "score"
     ) %>% 
   dplyr::mutate(
     clean_cat_id = case_when(
-      category == "connecitivity"   ~ "Connecitivity",
+      category == "connectivity"    ~ "Connectivity",
       category == "aquatic_health"  ~ "Aquatic Health",
       category == "watershed_cond"  ~ "Watershed Condition",
-      category == "public_health"   ~ "Public Health",
+      category == "public_health"   ~ "Public Safety",
       category == "recreation"      ~ "Recreation"
     )
   ) %>% 
@@ -190,9 +241,18 @@ scores_long <-
       legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
     )
   ) %>% 
-  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score, legend, pt_color) 
+  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score, legend, pt_color) %>% 
+  dplyr::left_join(
+    stream_names, 
+    by = "new_id"
+  ) %>%
+  dplyr::relocate(new_id, map_id, lhd_id, water_district, stream_name)
 
 saveRDS(scores_long, paste0(final_path, "/lhd_score_tidy.rds"))
+
+# **************************
+# ---- Normalize Scores ----
+# **************************
 
 # Scores normalize
 score_norm <- 
@@ -203,7 +263,7 @@ score_norm <-
   sf::st_as_sf() %>%
   sf::st_drop_geometry() %>%   
   dplyr::relocate(new_id, comid) %>% 
-  setNames(c("new_id", "comid", "connecitivity", "aquatic_health", 
+  setNames(c("new_id", "comid", "connectivity", "aquatic_health", 
              "watershed_cond", "public_health", "recreation")) %>% 
   dplyr::mutate(new_id = as.numeric(new_id)) %>% 
   dplyr::arrange(-new_id) %>% 
@@ -215,16 +275,16 @@ score_norm <-
   ) %>% 
   dplyr::relocate(new_id, map_id, comid) %>% 
   tidyr::pivot_longer(
-    cols      = c(connecitivity:recreation),
+    cols      = c(connectivity:recreation),
     names_to  = "category",
     values_to = "score"
   ) %>% 
   dplyr::mutate(
     clean_cat_id = case_when(
-      category == "connecitivity"   ~ "Connecitivity",
+      category == "connectivity"    ~ "Connectivity",
       category == "aquatic_health"  ~ "Aquatic Health",
       category == "watershed_cond"  ~ "Watershed Condition",
-      category == "public_health"   ~ "Public Health",
+      category == "public_health"   ~ "Public Safety",
       category == "recreation"      ~ "Recreation"
     )
   ) %>% 
@@ -252,12 +312,56 @@ score_norm <-
       legend == "Tribal"               ~ "#F49D6E"  # atomic tangerine 
     )
   ) %>% 
-  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score, score_std, legend, pt_color) 
+  dplyr::relocate(new_id, map_id, comid, category, clean_cat_id, score, score_std, legend, pt_color) %>% 
+  dplyr::left_join(
+    stream_names, 
+    by = "new_id"
+  ) %>%  
+  dplyr::left_join(
+    dplyr::select(
+      sf::st_drop_geometry(score_pts), new_id, lng, lat
+    ),
+    by = "new_id"
+  ) %>% 
+  dplyr::relocate(new_id, map_id, lhd_id, water_district, stream_name)
 
+# Save 
 saveRDS(score_norm, paste0(final_path, "/lhd_score_normal.rds"))
 
-# ********************************************************
-# ********************************************************
+# ************************************
+# ---- Normalize Scores (Spatial) ----
+# ************************************
+
+# Normalized poiint data
+score_norm_pts <- 
+  score_norm %>% 
+  dplyr::left_join(
+    dplyr::select(score_pts, new_id, geometry),
+    by = "new_id"
+  ) %>% 
+  sf::st_as_sf()
+
+# Save 
+saveRDS(score_norm_pts, paste0(final_path, "/lhd_score_normal_pts.rds"))
+
+# Normalized points (wide)
+score_norm_pts_wide <-  
+  score_norm_pts %>% 
+  tidyr::pivot_wider(
+    id_cols     = c(new_id, map_id, lhd_id, water_district, stream_name, comid, legend, lng, lat, geometry),
+    names_from  = "category",
+    values_from = c(score_std)
+  ) %>% 
+  sf::st_as_sf() %>% 
+  dplyr::relocate(new_id:legend,  connectivity:recreation, lng, lat, geometry)
+
+
+# Save 
+saveRDS(score_norm_pts_wide, paste0(final_path, "/lhd_score_normal_pts_wide.rds"))
+
+# *************************************************************************************************
+# *************************************************************************************************
+
 #define vector of data values
 data <- c(3, 5, 6, 7, 500)
 

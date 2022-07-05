@@ -34,7 +34,6 @@ library(knitr)
 # library(reactable)
 
 # knitr::opts_chunk$set(echo = FALSE, ft_max_row = 6, tab.topcaption=FALSE, ft.align="left")
-# tags$head(tags$style(HTML("label {font-weight:bold;}")))
 
 source('utils.R')
 ```
@@ -48,6 +47,7 @@ source('utils.R')
 }
 
 </style>
+
 
 ```{r context="server"}
 # LHD Points and scores, wide format
@@ -74,100 +74,69 @@ output$lhdMap          <- renderLeaflet({ basemap(pts = score_pts) })
 #   tablemap(pts = dplyr::filter(score_pts, new_id %in% c(top_rank()$ID))) 
 #            })
 ```
-
-Introduction
+Intro
 =================================================
 
-<center> <h2>**About this project**</h2> </center>
-
----
+#### About this project
 
 A total of 1,103 low-head dams in Colorado have been inventoried and documented on an interactive public map ([Colorado Low Head Dam Inventory](https://dnr.colorado.gov/initiatives/colorado-low-head-dams)). Several of these low-head dams (LHDs) have a clear economic utility, serving agricultural, mining, and/or industrial needs. However, many of these low-head dams also pose a public safety hazard, disrupt recreational opportunities, are rendered obsolete, and disturb the continuity and function of aquatic ecosystems and associated ecosystem services. A major challenge facing decision makers is identifying which low-head dams are ripe for retrofitting or removal (R/R). In order to aid this decision-making process, a quantitative framework for prioritizing low-head dams must be developed. Such a framework must account for the multi-sector costs and benefits of project investment, and do-so at-scale such that all 1,103 existing low-head dams can be evaluated.
 
-<br>
-<br>
-
-<center> <h2>**Impact categories**</h2> </center>
-
----
+#### Impact categories
 
 A literature review and stakeholder surveys revealed six general categories of stakeholder interests when considering an LHD removal: public safety; watershed condition; aquatic habitat; recreation; industrial utility; and financial, management, and institutional considerations. Of these interest domains, the first four (public safety, watershed condition, aquatic habitat, and recreation) are well suited for broad-scale quantitative analysis, allowing first-order estimates of project impact. However, the final two domains – Industrial Utility; and Finance, Management, and Institutional Considerations - are inherently project specific, data-limited, and too difficult to generalize at a state-wide scale. For this reason, our framework only includes four of these six major interest domains, acknowledging that industrial utility, financial, managerial, and institutional considerations need to be accounted for on a project-by-project basis. 
 
 Decisions regarding what considerations will represent the remaining four interest domains are influenced by data availability. For instance, water quality, while an important aspect of aquatic habitat, is not measured uniformly across the state in a way that can be evaluated at every LHD site. 
 The interest domains considered in the framework, each category’s definition, and the data used to quantify each are illustrated below.
 
-<br>
-<br>
-
 ```{r category defs, echo = FALSE, out.width = '100%'}
 # 
 knitr::include_graphics("data/app_data/category_defs.png")
 ```
 
-<br>
-<br>
+#### Prioritization framework 
 
-<center> <h2>**Prioritization framework**</h2> </center>
-
----
-
-Here, we present a framework for prioritizing LHD R/R projects that aims to synthesize the costs and benefits of project investment across a range of stakeholder interests. The framework assesses the **maximum potential impact** of an LHD removal or retrofit project across various interest domains.
-
-<br>
-<br>
+Here, we present a framework for prioritizing LHD R/R projects that aims to synthesize the costs and benefits of project investment across a range of stakeholder interests. The framework assesses the **maximum potential impact** of an LHD removal or retrofit project across various interest domains. 
 
 ```{r potential impact, echo = FALSE,  out.width = '100%'}
 # 
 knitr::include_graphics("data/app_data/potential_impact.png")
 ```
 
-**Potential impact describes the relative gain in value stemming from an LHD R/R project, as evaluated across a single or all interest domains.** An interest domain receiving a high score (largest blue circle) indicates certain conditions where R/R would have the greatest potential impact. This means that the capital invested in implementing the project would be put to good use, in terms of stimulating beneficial outcomes. An interest domain receiving a low score (smallest blue circle) indicates conditions where a R/R would do little to push the needle toward a maximum future value/state. A suite of data-driven quantitative metrics underlies the scoring system. Score interpretations for each interest domain is summarized in the table below. 
+---
 
-<br>
-<br>
+**Potential impact describes the relative gain in value stemming from an LHD R/R project, as evaluated across a single or all interest domains.**
+
+An interest domain receiving a high score (largest blue circle) indicates certain conditions where R/R would have the greatest potential impact. This means that the capital invested in implementing the project would be put to good use, in terms of stimulating beneficial outcomes. An interest domain receiving a low score (smallest blue circle) indicates conditions where a R/R would do little to push the needle toward a maximum future value/state. A suite of data-driven quantitative metrics underlies the scoring system. Score interpretations for each interest domain is summarized in the table below. 
 
 ```{r score interp, echo = FALSE, out.width = '100%'}
 # 
 knitr::include_graphics("data/app_data/score_interp.png")
 ```
 
-<br>
-<br>
-
-<center> <h2>**How to use the dashboard**</h2> </center>
-
----
+#### How to use the dashboard
 
 This dashboard is an interactive tool that displays each inventoried low head dam and its scores across all interest domains. Explore summaries of the inventory using the maps, data table, or plots. Manipulate how composite scores are calculated to reflect preferences on domain importance.
 
-<h4>**Scoring tab**</h4>
+**Scoring tab**
 
 *Use this tab if you want to view one (or a few) LHDs and their score breakdown, including the LHD’s position among all other LHDs’ scores.*
 
-**1.**	Use the left-hand panel to determine which interest domains you wish to include in the analysis and how each interest domain is weighted in the total score. 
+1.	Use the left-hand panel to determine which interest domains you wish to include in the analysis and how each interest domain is weighted in the total score. 
 
-**2.**	Select an LHD on the map to view the score breakdown for each interest domain. You may also select an LHD by clicking on a point in the Rank plot, on the bottom right, or by typing in an LHD ID number in the text box.
+2.	Select an LHD on the map to view the score breakdown for each interest domain. You may also select an LHD by clicking on a point in the Rank plot, on the bottom right, or by typing in an LHD ID number in the text box.
 
-<br>
 
-<h4>**Ranking tab**</h4>
+**Ranking tab**
 
 *Use this tab if you want to view a list of top LHD scores, ranked by total score or by one of the interest domains.*
 
-**1.**	Use the left-hand panel to determine which interest domains you wish to include in the analysis and how each interest domain is weighted in the total score. For example, if you want to view only the top 25 public safety LHDs, uncheck the other interest domain boxes. 
+1.	Use the left-hand panel to determine which interest domains you wish to include in the analysis and how each interest domain is weighted in the total score. For example, if you want to view only the top 25 public safety LHDs, uncheck the other interest domain boxes. 
 
-**2.**	The data table shows the low head dams with the top 25 total scores, according to the selections in the left-hand panel. Select the rows to view their locations in the map.
+2.	The data table shows the low head dams with the top 25 total scores, according to the selections in the left-hand panel. Select the rows to view their locations in the map.
 
-<center> <h3>***Proceed to the tabs at the top of this page to access dashboard***</h3> </center>
+***Proceed to the next tabs to access dashboard***
 
----
-
-<br>
-<br>
-
-<center> <h2>**Detailed Quantitative Methods**</h2> </center>
-
----
+#### Detailed Quantitative Methods
 
 Quantitative metrics provide actionable information to assist in R/R projects. Some of the methods we use to quantify LHD structures have been vetted and used in existing analytical frameworks (Lacy, 2020; SARP, 2022). We build on these individual frameworks and quantitatively assess project potential in each interest domain using appropriate data. For more detailed information about the analysis methods, please see the [source code repository](https://github.com/rachel-lynker/lhd_analysis) for this project.
 
@@ -175,12 +144,14 @@ The public safety interest domain is quantified by the level of danger an LHD st
 
 River network connectivity is a core concept underlying our proposed approaches for evaluating project impact to watershed quality, aquatic habitat and recreation. River network connectivity refers to the network of interconnected waterways (and their attributes) between structural breakpoints. Delineating connected networks adjacent to LHDs can be done with the National Hydrography Dataset (NHDPlus), which provides a high-resolution mapping of the U.S. river and stream network (U.S. Geological Survey, 2019). Using graph analysis computational techniques, we can identify the extent of connected river networks as they exist now and as they may be in the future following R/R project investment. For example, consider the river network in Figure 3A with three LHDs situated along the mainstem. In this network, LHD 2 acts as a connectivity barrier dividing the black network (between LHD 3 and 2) and the gray network (between LHD 2 and 1). If LHD 2 were to be removed, as is shown in Figure 3B, the newly connected area, shown in green, is the sum of the previously divided gray and black networks. The potentially connected network extent in Figure 3B provides a domain extent for subsequent analyses of geomorphic, ecological, hydrological, and recreational attributes of constituent river segments.
 
-```{r connectivity, echo = FALSE, out.width = '75%', fig.cap = "A) a segmented river network showing LHDs 1, 2, and 3; B) total connected river network in green between LHD 1 and LHD 3 if LHD 2 were removed"}
+```{r connectivity, echo = FALSE,  out.width = '100%'}
 # 
 knitr::include_graphics("data/app_data/connectivity.png")
 ```
 
-<br>
+---
+
+**A segmented river network showing LHDs 1, 2, and 3; B) total connected river network in green between LHD 1 and LHD 3 if LHD 2 were removed**
 
 Watershed condition describes the physical and biological integrity of the watershed. Our evaluation of watershed condition impact is based on four main concepts: 1) network connectivity, as described previously, 2) network complexity, 3) natural landcover, and 4) channel alteration, all of which have been adapted from the Aquatic Barrier Prioritization Tool (SARP, 2022). The diversity of stream order within the connected network measures the level of complexity in the watershed. A more complex network allows for a greater range of habitat and species. Network complexity is evaluated using the NHDPlus network by assigning segments to class sizes based on total drainage area. Watershed condition is also influenced by the amount of natural land cover in the watershed, as LHDs surrounded by fewer impervious surfaces are more likely to contribute to higher quality habitat if a R/R were to occur. Natural land cover is derived from the USDA National Landcover Database (NCLD) and measured from the overall percent of natural land cover throughout the entire connected network. Lastly, channel alteration is a measure of how altered a waterway is compared to natural conditions. Highly channelized reaches have a lower variety and quality of instream habitat. We evaluate channel alteration by identifying reach segments coded as canals or ditches in the NHDPlus HR dataset, and then calculating the percent of altered lengths by the total length of the connected network. 
 
@@ -190,25 +161,15 @@ The recreation interest domain quantifies the abundance of quality recreational 
 
 In order to compare an LHD’s potential impact to another, we synthesize the individual impact scores into a composite, total score. Interest domains can be weighted more or less in a composite score, based on user institutional or structural knowledge about the LHD of interest. An evaluation of the net impacts of a portfolio of LHDs can give decision makers the ability to identify groups of LHDs that may not receive high impact scores individually, but could approach a maximum future value if all underwent a R/R project. This scenario is conceivable when there are multiple LHDs close to each other on a single stretch of river, and removing all of them could significantly increase network connectivity and the potential impact across all interest domains.
 
-<br>
-<br>
-
-<center> <h2>**Data Considerations and Limitations**</h2> </center>
-
----
+#### Data Considerations and Limitations
 
 This framework and dashboard are decision support tools, not decision makers. Capital investment decisions are situationally unique and multifactorial. The framework is surely unable to quantitatively capture all of the considerations behind any one project. However, the framework does offer a generalizable platform for comparing and contrasting many potential projects across the state that may be useful in the process of investment triage. In other words, the framework provides a mechanism to identify a short (or long-short) list of projects that warrant deeper consideration. 
 
 The Colorado LHD Inventory contained structure category designations Diversion Dam, Grade Control Structures, and Recreation. While all Recreation dams were confirmed and removed from the analysis, it must be noted that a thorough investigation of the remaining two categories, Diversion Dam and Grade Control Structure was not done. The Colorado LHD Inventory identified Diversion Dams as the most dangerous, as they are most likely built with a vertical face that can create a submerged hydraulic jump. A cursory pass through of some LHDs found some mis-categorization some LHDs between the first two categories, with some Grade Control Structures mislabeled as Diversion Dams and vise versa. Therefore, scoring an LHD based on this categorization would have been misleading, potentially lowering the score of a dangerous LHD. Further work correctly categorizing LHDs based on submerged hydraulic jump potential should be completed.
 
-Certain data limitations exist that prevent some factors of an interest domain to be fully quantified. Therefore, each domain is quantified based on best available state-wide data that best represents each consideration. For instance, some aquatic measurements of aquatic health, such as species richness and presence of invasive species, are not comprehensive enough to adequately include in the framework. Therefore, institutional knowledge of known invasive or endangered species should be considered in concert with the prioritization scoring framework.
+Certain data limitations exist that prevent some factors of an interest domain to be fully quantified. Therefore, each domain is quantified based on best available state-wide data that best represents each consideration. For instance, some aquatic measurements of biotic health, such as species richness and presence of invasive species, are not comprehensive enough to adequately include in the framework. Therefore, institutional knowledge of known invasive or endangered species should be considered in concert with the prioritization scoring framework.
 
-<br>
-<br>
-
-<center> <h2>**References**</h2> </center>
-
----
+#### References
 
 Aquatic Barrier Prioritization Tool. (2020). *Southeast Aquatic Resources Partnership.* https://connectivity.sarpdata.com/
 
@@ -227,15 +188,9 @@ Input {.sidebar}
 ------------------------------------------------------------
 ### **Directions:**
 
----
-
-#### **1.**  Select a low head dam on the map or use the search field below to view scores. 
-
+1. Select a low head dam on the map or use the search field below to view scores. 
 <br>
-
-#### **2.**  Use the options below to manipulate how the total score is calculated
-
-<br>
+2. Use the options below to manipulate how the total score is calculated
 
 ```{r}
 # Select/search for LHD IDs
@@ -254,20 +209,10 @@ shiny::selectizeInput(
   selected = NULL,
   multiple = TRUE
   )
-```
-
-<br>
-<br>
-
-#### **Interest Domains**
-
----
-
-```{r}
 # poverty_sidebar <- sidebarPanel(
 shiny::checkboxGroupInput(
     inputId  = "scoreButtons",
-    label    = NULL,
+    label    = "Interest domains",
     choices  = c(
               "Public Safety"        = "public_health",
               "Recreation"           = "recreation",
@@ -277,9 +222,7 @@ shiny::checkboxGroupInput(
         selected = c("public_health", "recreation",  "watershed_cond", "aquatic_health")
     # selected = c("aquatic_health", "watershed_cond", "public_health", "recreation")
     )
-```
 
-```{r}
 # Score Weight input
 shiny::numericInput(
   inputId = "phWeight",
@@ -301,7 +244,7 @@ shiny::numericInput(
 # Score Weight input
 shiny::numericInput(
   inputId = "wsWeight",
-  label   = "Watershed Condition weight:",
+  label   = "Watershed condition weight:",
   value   = 1,
   min     = 0,
   max     = 20
@@ -319,8 +262,8 @@ shiny::numericInput(
 # Reset inputs button UI
 shiny::actionButton("reset_input", "Reset inputs")
 
-# shiny::verbatimTextOutput("idText")
-# shiny::verbatimTextOutput("changeText")
+shiny::verbatimTextOutput("idText")
+shiny::verbatimTextOutput("changeText")
 
 ```
 
@@ -374,7 +317,7 @@ shiny::observeEvent(input$reset_input, {
   # Reset Watershed condition weight
   shiny::updateNumericInput(
     inputId = "wsWeight",
-    label   = "Watershed Condition weight:",
+    label   = "Watershed condition weight:",
     value   = 1,
     min     = 0,
     max     = 20
@@ -398,17 +341,13 @@ shiny::observeEvent(input$reset_input, {
 
 # LHD ID reactive value
 score_buttons <- shiny::reactive({
-  print(selected$groups)
+  
   print("score_buttons reactive")
   input$scoreButtons
 })
 
 # LHD ID reactive value
-lhd_id <- shiny::reactive({ 
-  print("lhd_id reactive")
-    print(selected$groups)
-  input$lhdMap_marker_click$id 
-  })
+# lhd_id <- shiny::reactive({ print("lhd_id reactive") input$lhdMap_marker_click$id })
 
 # lhd_scores <- shiny::reactive({
 #   score_norm %>%
@@ -429,8 +368,8 @@ category_weights <- shiny::reactive({
       data.frame(
         category = c("Aquatic Health", "Watershed Condition", "Public Safety", "Recreation"),
         # weights  = c(1, 2, 1, 3)
-        weights  = c(1, 1, 0, 1)
-        # weights  = c(input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
+        # weights  = c(1, 1, 1, 1)
+        weights  = c(input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
       ) %>%
       replace(is.na(.), 0)
 
@@ -563,9 +502,7 @@ category_ranks <- shiny::reactive({
       score_norm %>%
       dplyr::filter(category %in% input$scoreButtons) %>%
       # dplyr::filter(category %in% c("aquatic_health", "recreation",
-      #                               "watershed_cond",
-      #                               "public_health"
-      #                               )  ) %>%
+      #                               "watershed_cond", "public_health")) %>%
       dplyr::left_join(
         category_weights(),
         # weights_df,
@@ -581,7 +518,7 @@ category_ranks <- shiny::reactive({
 })
 
 event_trigger <- shiny::reactive({
-    # shiny::req(input$selected_locations)
+    shiny::req(input$selected_locations)
     shiny::req(input$scoreButtons)
     shiny::req(input$ahWeight)
     shiny::req(input$wsWeight)
@@ -590,9 +527,7 @@ event_trigger <- shiny::reactive({
     
     print("event_trigger reactive")
     
-    paste(input$scoreButtons, input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
-
-    # paste(input$selected_locations, input$scoreButtons, input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
+    paste(input$selected_locations, input$scoreButtons, input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
     # list(input$selected_locations,  input$scoreButtons)
   })
 ```
@@ -604,17 +539,18 @@ event_trigger <- shiny::reactive({
 #   print(category_weights()) # print(dplyr::filter(mean_scores(), clean_cat_id == "Watershed Condition")$mean_score ) })
 
 # # Test output
-# output$idText <- renderPrint({
+output$idText <- renderPrint({
+    print(selected$groups)
+    # shiny::req(category_weights())
+    # print(top_rank())
+    # print(event_trigger())
+  })
 # 
-#     print(top_rank())
-#     # print(event_trigger())
-#   })
-# 
-# output$changeText <- renderPrint({
-# 
-#     print(event_trigger())
-#     # print(event_trigger())
-#   })
+output$changeText <- renderPrint({
+   print(category_ranks())
+    # print(event_trigger())
+    # print(event_trigger())
+  })
 
 ```
 
@@ -780,7 +716,7 @@ flexdashboard::valueBoxOutput("watershedBox")
 shinyBS::bsPopover(
   "watershedBox",
   title     = "Watershed Condition Score",
-  content   = "The physical and biological integrity of a watershed and the natural services it provides, such as network complexity and natural landcover. Higher scores indicate good watershed conditions surrounding LHDs. LHDs with better watershed conditions will contribute better (longer, natural, and more complex) aquatic networks if a removal/retrofit project were to occur.",
+  content   = "The physical and biological integrity of a watershed and the natural services it provides, such as network complexity and natural landcover.Higher scores indicate good watershed conditions surrounding LHDs. LHDs with better watershed conditions will contribute better (longer, natural, and more complex) aquatic networks if a removal/retrofit project were to occur.",
   placement = "top",
   options   = list(container = "body")
   )
@@ -820,7 +756,7 @@ flexdashboard::valueBoxOutput("totalScoreBox")
 shinyBS::bsPopover(
   "totalScoreBox",
   title     = "Total Score",
-  content   = "All individual category scores summed together. Higher scores indicated a larger positive impact if a removal/retrofit project of the LHD were to occur",
+  content   = "All individual category scores summed together. Higher scores indicate a larger benefit for removal the LHD.",
   placement = "top",
   options   = list(container = "body")
   )
@@ -871,7 +807,7 @@ output$watershedBox <-  flexdashboard::renderValueBox(
                      flexdashboard::valueBox(
                       value   = "-",
                       icon    = "fa-tree",
-                      caption = "Watershed Condition",
+                      caption = "Watershed condition",
                       color   = "success"
                   )
                 )
@@ -924,7 +860,7 @@ shiny::observeEvent(input$selected_locations, {
         flexdashboard::valueBox(
           value   = paste0(wsScore()),
           icon    = "fa-tree",
-          caption = "Watershed Condition",
+          caption = "Watershed condition",
           color   = "success"
           )
         )
@@ -945,8 +881,8 @@ Row {data-height=400}
 -----------------------------------------------------------------------
 ### Score breakdown
 ```{r}
-plotly::plotlyOutput("meanScorePlot")
-# shiny::plotOutput("meanScorePlot")
+# plotly::plotlyOutput("meanScorePlot")
+shiny::plotOutput("meanScorePlot")
 shinyBS::bsPopover(
   "meanScorePlot",
   title     = "Scores by interest domain",
@@ -968,21 +904,19 @@ tags$style(HTML("
 # shiny::observeEvent(input$selected_locations, {
 shiny::observeEvent(event_trigger(), {
     # print("observer5")
-  # output$meanScorePlot <- shiny::renderPlot({
-  output$meanScorePlot <- plotly::renderPlotly({
+  output$meanScorePlot <- shiny::renderPlot({
+  # output$meanScorePlot <- plotly::renderPlotly({
     # score_mean_plot(df = mean_scores(), interactive = TRUE)
+      # shiny::req(category_ranks())
       # shiny::req(input$selected_locations)
-    
-      # shiny::req(selected$groups)
-    
       category_rank_plot(
         df           = category_ranks(), 
         lhd_ids      = selected$groups,
         # lhd_ids      = c(1, 2),
-        interactive  = TRUE
-      )
-    }
-    )
+        interactive  = FALSE
+        )
+   
+  })
  # print("observer5 v2")
   # .section level3 chart-wrapper chart-wrapper-flex {
     # flex: 100 0px; }
@@ -1020,9 +954,8 @@ shiny::observeEvent(event_trigger(), {
     # Ranked LHD scores plot
     output$rankPlot <- plotly::renderPlotly({
     # output$rankPlot <- shiny::renderPlot({
-      # shiny::req(input$selected_locations)
-      # shiny::req(selected$groups)
-      
+      shiny::req(rank_scores())
+      shiny::req(input$selected_locations)
       # Ranked LHD scores plot
       score_rank_plot(
         df          = rank_scores(),
@@ -1030,36 +963,26 @@ shiny::observeEvent(event_trigger(), {
         interactive = TRUE
         )
     })
-})
+}
+#   ignoreNULL = FALSE,
+# ignoreInit = TRUE
+)
 ```
 
-Ranking
+Data Table
 =================================================
 Input {.sidebar}
 ------------------------------------------------------------
 ### **Directions:**
-
----
-
-#### **1.**  Use the interactive data table to view top 25 low head dams
-
+1. Use the interactive data table to view top 25 low head dams
 <br>
-
-#### **2.**  Use the options below to manipulate how the total score is calculated
-
-<br>
-<br>
-
-#### **Interest Domains**
-
----
+2. Use the options below to manipulate how the total score is calculated
 
 ```{r}
-
 # Interest domain check boxes
 shiny::checkboxGroupInput(
     inputId  = "scoreButtonsDT",
-    label    = NULL,
+    label    = "Interest domains",
     choices  = c(
               "Public Safety"        = "public_health",
               "Recreation"           = "recreation",
@@ -1069,9 +992,7 @@ shiny::checkboxGroupInput(
       selected = c("public_health", "recreation", "watershed_cond", "aquatic_health")
     # selected = c("aquatic_health", "watershed_cond", "public_health", "recreation")
     )
-```
 
-```{r}
 # Select/search for LHD IDs
 # shiny::selectizeInput(
 #   inputId  = "selected_locations",
@@ -1103,7 +1024,7 @@ shiny::numericInput(
 # Score weight input
 shiny::numericInput(
   inputId = "wsWeightDT",
-  label   = "Watershed Condition weight:",
+  label   = "Watershed condition weight:",
   value   = 1,
   min     = 0,
   max     = 20
@@ -1117,24 +1038,21 @@ shiny::numericInput(
   min     = 0,
   max     = 20
   )
-```
 
-```{r}
 # Reset inputs button
 shiny::actionButton(
   "reset_input_dt",
   "Reset inputs"  
   )
-```
 
-<br>
-
-```{r}
 # Reset datatable selections button
 shiny::actionButton(
   "clear_rows_button",
   "Clear Table Selections"  
   )
+# shiny::textOutput("scoreButtonText")
+# shiny::verbatimTextOutput("meanLHD")
+#
 # shiny::verbatimTextOutput("idText")
 # shiny::verbatimTextOutput("changeText")
 ```
@@ -1146,7 +1064,7 @@ shiny::observeEvent(input$reset_input_dt, {
   # Reset check boxes
   shiny::updateCheckboxGroupInput(
     inputId  = "scoreButtonsDT",
-    label    = NULL,
+    label    = "Interest domains",
     choices  = c(
               "Public Safety"        = "public_health",
               "Recreation"           = "recreation",
@@ -1178,7 +1096,7 @@ shiny::observeEvent(input$reset_input_dt, {
   # Reset Watershed condition weight
   shiny::updateNumericInput(
     inputId = "wsWeightDT",
-    label   = "Watershed Condition weight:",
+    label   = "Watershed condition weight:",
     value   = 1,
     min     = 0,
     max     = 20
@@ -1608,3 +1526,27 @@ output$tableMap        <- leaflet::renderLeaflet({
 <!--     # print(selected_table$new_id) -->
 <!--   }) -->
 <!-- ``` -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

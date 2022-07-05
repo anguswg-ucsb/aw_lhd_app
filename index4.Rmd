@@ -1,0 +1,92 @@
+---
+title: "Low Head Dams"
+output:
+  flexdashboard::flex_dashboard:
+    navbar: null
+    theme: yeti
+    orientation: rows
+    vertical_layout: fill
+    logo: www/lynker_logo_white_transparent.png
+    css: www/custom.css
+runtime: shiny
+---
+
+```{r setup, include = FALSE}
+# Shiny & Flexdashboard libraries
+library(shiny)
+library(flexdashboard)
+library(dplyr)
+library(leaflet)
+library(sf)
+library(rgdal)
+library(RColorBrewer)
+library(viridisLite)
+# library(knitr)
+library(ggplot2)
+library(plotly)
+# library(flextable)
+# library(reactable)
+
+# knitr::opts_chunk$set(echo = FALSE, ft_max_row = 6, tab.topcaption=FALSE, ft.align="left")
+
+source('utils.R')
+```
+
+<style>
+.navbar, [data-toggle=tab], .navbar-brand  {   background-color:#1c3a5d;   border-color:black;   color:white; }
+
+.navbar-logo img {
+    position: absolute;
+    right: 6px;
+}
+
+</style>
+
+
+```{r context="server"}
+# LHD Scores in wide and long format, no geometry 
+score       <- readRDS("data/app_data/lhd_score.rds")
+```
+
+Page Title
+=====================================
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+### Title of plot
+```{r}
+shiny::plotOutput("scorePlot")
+```
+
+```{r context = "server"}
+output$scorePlot <- renderPlot({
+  
+  plot(score$connectivity)
+  
+})
+```
+
+### Table 
+```{r}
+DT::DTOutput("scoreTable")
+```
+
+```{r context = "server"}
+output$scoreTable <- DT::renderDT({
+  
+  DT::datatable(score)
+  
+})
+```
+
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+
+
+Page Title 2
+=====================================
+
+
+
