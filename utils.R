@@ -62,9 +62,8 @@ basemap <- function(
   #   palette = colorRampPalette(RColorBrewer::brewer.pal(length(ulegend), "Paired"))(length(ulegend)), 
   #   domain  = ulegend
   # )
-  
+ 
   # pts <- score_pts
-  
   # HTML Labels for markers
   labels <- sprintf(
     "<strong>ID:</strong> %s<br/><strong>Stream: </strong>%s<br/><strong>Ownership: </strong> %s",
@@ -75,16 +74,28 @@ basemap <- function(
   # LEAFLET MAP
   leaflet::leaflet() %>%
     leaflet::addProviderTiles(
-      provider = providers$CartoDB.Positron,
-      options  = leaflet::providerTileOptions(
-        noWrap = FALSE
-      )
+      providers$OpenStreetMap,
+      group    = "Topographic",
+      options  = leaflet::providerTileOptions(noWrap = FALSE)) %>%
+    leaflet::addProviderTiles(
+      providers$Esri.WorldImagery, 
+      group    = "Imagery",
+      options  = leaflet::providerTileOptions(noWrap = FALSE)) %>%
+    leaflet::addLayersControl(
+      baseGroups = c("Topographic", "Imagery"),
+      options = leaflet::layersControlOptions(collapsed = FALSE)
     ) %>% 
+    # leaflet::addProviderTiles(
+    #   provider = providers$CartoDB.Positron,
+    #   options  = leaflet::providerTileOptions(
+    #     noWrap = FALSE
+    #   )
+    # ) %>% 
     leaflet::addCircleMarkers(
       data        = pts,
-      fillColor   = "grey",
-      fillOpacity = 0.5,
-      # radius      = 4,
+      fillColor   = "#B2BEB5",
+      fillOpacity = 0.6,
+      radius      = 7,
       color       = "black",
       stroke      = TRUE,
       weight      = 1,
@@ -97,12 +108,12 @@ basemap <- function(
           textsize  = "15px",
           direction = "auto"
           )
-    ) %>%
+    ) %>% 
     leaflet::addCircleMarkers(
       data        = pts,
       fillColor   = "red",
-      fillOpacity = 0.5,
-      # radius      = 4,
+      fillOpacity = 0.7,
+      radius      = 7,
       color       = "black",
       stroke      = TRUE,
       weight      = 1,
@@ -234,14 +245,17 @@ tablemap <- function(
   #   pts  <- top_rank
   # LEAFLET MAP
   leaflet::leaflet() %>%
-    # leaflet::addProviderTiles(providers$OpenStreetMap, group = "Topographic") %>%
     leaflet::addProviderTiles(
-      # provider = providers$CartoDB.DarkMatter,
-      # provider = providers$OpenStreetMap,
-      provider = providers$CartoDB.Positron,
-      options  = leaflet::providerTileOptions(
-        noWrap = FALSE
-      )
+      providers$OpenStreetMap,
+      group    = "Topographic",
+      options  = leaflet::providerTileOptions(noWrap = FALSE)) %>%
+    leaflet::addProviderTiles(
+      providers$Esri.WorldImagery, 
+      group    = "Imagery",
+      options  = leaflet::providerTileOptions(noWrap = FALSE)) %>%
+    leaflet::addLayersControl(
+      baseGroups = c("Topographic", "Imagery"),
+      options = leaflet::layersControlOptions(collapsed = FALSE)
     ) %>% 
     leaflet::addCircleMarkers(
       data        = pts,
@@ -254,7 +268,7 @@ tablemap <- function(
       fillOpacity = 0.7,
       color       = "black",
       opacity     = 1,
-      radius      = 8,
+      radius      = 7,
       weight      = 1,
       stroke      = T,
       # layerId     = ~pts$ID,

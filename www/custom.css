@@ -15,6 +15,11 @@
     font-weight: 500;
 }
 
+.img-left {
+  float: left;
+  margin-right: 1em;
+}
+
 .chart-wrapper, .nav-tabs-custom, .sbframe-commentary {
     background: #FFFFFF;
     border: 1px;
