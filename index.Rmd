@@ -6,7 +6,7 @@ output:
     orientation: rows
     theme: yeti
     vertical_layout: fill
-    logo: www/lynker_logo_white_transparent.png
+    logo: www/aw_lynker_logo_blue_trans2.png
     css: www/custom.css
 runtime: shiny
 ---
@@ -37,16 +37,47 @@ library(shinyalert)
 # knitr::opts_chunk$set(echo = FALSE, ft_max_row = 6, tab.topcaption=FALSE, ft.align="left")
 # tags$head(tags$style(HTML("label {font-weight:bold;}")))
 
+# <style>
+# .navbar, [data-toggle=tab], .navbar-brand  {   background-color:#1c3a5d;   border-color:black;   color:white; }
+# 
+# .navbar-logo img {
+#     position: absolute;
+#     right: 6px;
+#     max-width: 145px;
+#     max-height: 100px;
+# }
+# .navbar-logo img {
+#     position: absolute;
+#     right: 6px;
+# }
+# 
+# .navbar-logo img {
+#     position: absolute;
+#     right: 6px;
+#     max-width: 145px;
+#     max-height: 100px;
+# }
+# .navbar-logo img {
+#   position: fixed;
+#   right: 10px;
+#   top: 5px;
+# }
+# .img-left {
+#   float: left;
+#   margin-right: 1em;
+# }
+# .navbar-logo img {
+#      position: absolute;
+#      max-width:100px;
+#      max-height:100px;
+# }
+# </style>
 source('utils.R')
 ```
 
 <style>
-.navbar, [data-toggle=tab], .navbar-brand  {   background-color:#1c3a5d;   border-color:black;   color:white; }
 
-.navbar-logo img {
-    position: absolute;
-    right: 6px;
-}
+.navbar, [data-toggle=tab], .navbar-brand  {   background-color:#1c3a5d;   border-color:black;   color:white; }
 
 </style>
 
@@ -57,25 +88,26 @@ shinyalert::useShinyalert(rmd = TRUE)
 score_pts   <- readRDS("data/app_data/lhd_score_pts.rds")
 
 # LHD Scores in wide and long format, no geometry 
-score       <- readRDS("data/app_data/lhd_score.rds")
 score_norm  <- readRDS("data/app_data/lhd_score_normal.rds") %>% 
   dplyr::select(-score) %>% 
   dplyr::rename(score = score_std)
 
-# score_rank_pts    <-  readRDS("data/app_data/lhd_score_normal_pts.rds")
-# score_pts    <-  readRDS("data/app_data/lhd_score_normal_pts_wide.rds") 
-
-score_tidy  <- readRDS("data/app_data/lhd_score_tidy.rds")
-
+# List of snakecase and clean category names
 cat_lst       <- c("aquatic_health", "watershed_cond", "public_health", "recreation")
 clean_cat_lst <- c("Aquatic Health","Watershed Condition", "Public Safety", "Recreation")
 
-# water rights tab
+# Scoring tab LHD map
 output$lhdMap          <- renderLeaflet({ basemap(pts = score_pts) })
 
 # output$tableMap        <- renderLeaflet({ 
 #   tablemap(pts = dplyr::filter(score_pts, new_id %in% c(top_rank()$ID))) 
 #            })
+
+# Unused data
+# score       <- readRDS("data/app_data/lhd_score.rds")
+# score_rank_pts    <-  readRDS("data/app_data/lhd_score_normal_pts.rds")
+# score_pts    <-  readRDS("data/app_data/lhd_score_normal_pts_wide.rds") 
+# score_tidy  <- readRDS("data/app_data/lhd_score_tidy.rds")
 ```
 
 Introduction
@@ -89,7 +121,7 @@ Row {.tabset}
 
 ---
 
-<center><h4>A total of 1,103 low-head dams in Colorado have been inventoried and documented on an interactive public map **([Colorado Low Head Dam Inventory](https://dnr.colorado.gov/initiatives/colorado-low-head-dams))**. Several of these low-head dams (LHDs) have a clear economic utility, serving agricultural, mining, and/or industrial needs. However, many of these low-head dams also pose a public safety hazard, disrupt recreational opportunities, are rendered obsolete, and disturb the continuity and function of aquatic ecosystems and associated ecosystem services. A major challenge facing decision makers is identifying which low-head dams are ripe for retrofitting or removal (R/R). In order to aid this decision-making process, a quantitative framework for prioritizing low-head dams must be developed. Such a framework must account for the multi-sector costs and benefits of project investment, and do-so at-scale such that all 1,103 existing low-head dams can be evaluated.</h4></center>
+<center><h4>A total of 1,103 low-head dams in Colorado have been inventoried and documented on an interactive public map **([Colorado Low Head Dam Inventory](https://dnr.colorado.gov/initiatives/colorado-low-head-dams))**. Many of these low-head dams (LHDs) have a clear economic utility, serving agricultural, mining, municipal, and/or industrial needs. However, many of these low-head dams also pose a public safety hazard, disrupt recreational opportunities, are rendered obsolete, and disturb the continuity and function of aquatic ecosystems and associated ecosystem services. A challenge facing decision makers is identifying which low-head dams are appropriate for retrofitting or removal (R/R). In order to aid this decision-making process, a quantitative framework for prioritizing low-head dams must be developed. Such a framework must account for the multi-sector costs and benefits of project investment, and do-so at-scale such that all 1,103 existing low-head dams can be evaluated.</h4></center>
 
 <br>
 
@@ -100,6 +132,13 @@ knitr::include_graphics("data/app_data/low_head_dam_border.jpg")
 ```
 
 <br>
+<br>
+
+<center><h4>**DISCLAIMER:**</h4></center>
+
+---
+
+<center><h4>This dashboard is a decision support tool, not a decision maker. Capital investment decisions are situationally unique and multifactorial. The framework behind the dashboard is limited due to data available at all 1,103 inventoried dams and is unable to quantitatively capture all of the considerations behind any one project. However, the dashboard does offer a generalizable platform for comparing and contrasting many potential projects across Colorado that may be useful in the process of investment triage. In other words, the dashboard provides a mechanism to identify a short (or long-short) list of projects that warrant deeper consideration.</h4></center>
 
 ---
 
@@ -147,7 +186,7 @@ knitr::include_graphics("data/app_data/potential_impact.png")
 <br>
 <br>
 
-<center><h4>Potential impact describes the relative gain in value stemming from an LHD R/R project, as evaluated across a single or all interest domains. An interest domain receiving a high score (largest blue circle) indicates certain conditions where R/R would have the greatest potential impact. This means that the capital invested in implementing the project would be put to good use, in terms of stimulating beneficial outcomes. An interest domain receiving a low score (smallest blue circle) indicates conditions where a R/R would do little to push the needle toward a maximum future value/state. A suite of data-driven quantitative metrics underlies the scoring system. Score interpretations for each interest domain is summarized in the table below.</h4></center>
+<center><h4>Potential impact describes the relative gain in value stemming from an LHD R/R project, as evaluated across a single or all interest domains. An interest domain receiving a high score (left-most circle) indicates certain conditions where R/R would have the greatest potential impact. This means that the capital invested in implementing the project would be put to good use, in terms of stimulating beneficial outcomes. An interest domain receiving a low score (right-most circle) indicates conditions where a R/R would do little to push the needle toward a maximum future value/state. A suite of data-driven quantitative metrics underlies the scoring system. Score interpretations for each interest domain is summarized in the table below.</h4></center>
 
 ####
 ```{r score interp, echo = FALSE,  out.width = '50%', fig.align = 'center'}
@@ -179,7 +218,7 @@ knitr::include_graphics("data/app_data/score_interp.png")
 
 <h4>**1.**	Use the left-hand panel to determine which interest domains you wish to include in the analysis and how each interest domain is weighted in the total score.</h4>
 
-<h4>**2.**	Select an LHD on the map to view the score breakdown for each interest domain. You may also select an LHD by clicking on a point in the Rank plot, on the bottom right, or by typing in an LHD ID number in the text box.</h4>
+<h4>**2.**	Select an LHD on the map to view the score breakdown for each interest domain. You may also select an LHD by typing in an LHD ID number in the text box on the left panel. Hover over a point on the scoring and rank plots to view the LHD ID.</h4>
 
 <br>
 <br>
@@ -273,7 +312,7 @@ Input {.sidebar}
 
 ---
 
-#### **1.**  Select a low head dam on the map or use the search field below to view scores. 
+#### **1.**  Select a low head dam on the map or use the search field below to view scores.
 
 <br>
 
@@ -375,7 +414,7 @@ shiny::actionButton("reset_input", "Reset inputs")
 <br>
 <br>
 
-### 
+###
 ```{r}
 
 # showModal(disclaimModal)
@@ -389,9 +428,9 @@ shiny::actionButton("reset_input", "Reset inputs")
 #   easyClose = F
 #   )
 
-# 
+#
 # showModal(disclaimModal)
-# 
+#
 # observeEvent(input$run, {
 #   removeModal()
 # })
@@ -414,7 +453,7 @@ shiny::actionButton("reset_input", "Reset inputs")
 
 # Observe clicking of reset button
 shiny::observeEvent(input$reset_input, {
-  
+
   # Reset selected points
   shiny::updateSelectizeInput(
     session,
@@ -423,7 +462,7 @@ shiny::observeEvent(input$reset_input, {
     choices  = unique(score_norm$new_id),
     selected = NULL
     )
-  
+
   # Reset check boxes
   shiny::updateCheckboxGroupInput(
     inputId  = "scoreButtons",
@@ -437,7 +476,7 @@ shiny::observeEvent(input$reset_input, {
     selected = c("public_health", "recreation",  "watershed_cond", "aquatic_health")
     # selected = c("aquatic_health", "watershed_cond", "public_health", "recreation")
     )
-  
+
   # Reset Public safety weight
   shiny::updateNumericInput(
     inputId = "phWeight",
@@ -455,7 +494,7 @@ shiny::observeEvent(input$reset_input, {
     min     = 0,
     max     = 20
     )
-  
+
   # Reset Watershed condition weight
   shiny::updateNumericInput(
     inputId = "wsWeight",
@@ -464,7 +503,7 @@ shiny::observeEvent(input$reset_input, {
     min     = 0,
     max     = 20
   )
-  
+
   # Reset Aquatic health  weight
   shiny::updateNumericInput(
     inputId = "ahWeight",
@@ -489,10 +528,10 @@ score_buttons <- shiny::reactive({
 })
 
 # LHD ID reactive value
-lhd_id <- shiny::reactive({ 
+lhd_id <- shiny::reactive({
   print("lhd_id reactive")
     print(selected$groups)
-  input$lhdMap_marker_click$id 
+  input$lhdMap_marker_click$id
   })
 
 # lhd_scores <- shiny::reactive({
@@ -507,9 +546,9 @@ category_weights <- shiny::reactive({
     shiny::req(input$phWeight)
     shiny::req(input$recWeight)
     # shiny::req(input$selected_locations)
-    
+
     print("category_weights reactive")
-    
+
     weights_df <-
       data.frame(
         category = c("Aquatic Health", "Watershed Condition", "Public Safety", "Recreation"),
@@ -529,9 +568,9 @@ mean_scores <- shiny::reactive({
   # shiny::req(input$selected_locations)
   shiny::req(input$scoreButtons)
   shiny::req(category_weights())
-  
+
   print("mean_scores reactive")
-  
+
   df <-
     score_norm %>%
     dplyr::filter(new_id %in% input$selected_locations) %>%
@@ -589,14 +628,14 @@ recScore <- shiny::reactive({
     shiny::req(mean_scores())
      print("recScore reactive")
     dplyr::filter(mean_scores(), clean_cat_id == "Recreation")$mean_score
-  
+
 })
 
 phScore <- shiny::reactive({
     shiny::req(mean_scores())
     print("phScore reactive")
     dplyr::filter(mean_scores(), clean_cat_id == "Public Safety")$mean_score
-      
+
 })
 
 # Reactive total score value
@@ -606,14 +645,14 @@ totalScore <- shiny::reactive({
   mean_scores() %>%
     dplyr::summarise(total_score = sum(mean_score, na.rm = T)) %>%
     .$total_score
-    
+
 })
 
 rank_scores <- shiny::reactive({
     # shiny::req(input$selected_locations)
     shiny::req(input$scoreButtons)
     shiny::req(category_weights())
-    
+
     print("rank_scores reactive")
     # Rank LHD scores and plot
     rank_df <-
@@ -630,8 +669,8 @@ rank_scores <- shiny::reactive({
       dplyr::summarise(total_score = sum(score, na.rm = T)) %>%
       dplyr::ungroup() %>%
       dplyr::arrange(-total_score) %>%
-      dplyr::mutate(rank = rank(-total_score, ties.method = "first"))  
-      # dplyr::rename("ID" = "new_id") 
+      dplyr::mutate(rank = rank(-total_score, ties.method = "first"))
+      # dplyr::rename("ID" = "new_id")
       # dplyr::relocate(ID, Rank, `Total Score`)
     rank_df
 
@@ -641,10 +680,10 @@ category_ranks <- shiny::reactive({
     # shiny::req(input$selected_locations)
     shiny::req(input$scoreButtons)
     shiny::req(category_weights())
-    
+
     print("category_rank reactive")
     # Rank LHD scores and plot
-    category_rank_df <- 
+    category_rank_df <-
       score_norm %>%
       dplyr::filter(category %in% input$scoreButtons) %>%
       # dplyr::filter(category %in% c("aquatic_health", "recreation",
@@ -660,7 +699,7 @@ category_ranks <- shiny::reactive({
       dplyr::mutate(across(where(is.numeric), round, 3)) %>%
       dplyr::mutate(
         clean_cat_id = factor(clean_cat_id, levels = c("Recreation", "Public Safety",
-                                                       "Watershed Condition", "Aquatic Health"))) %>% 
+                                                       "Watershed Condition", "Aquatic Health"))) %>%
       dplyr::rename("Score" = "score")
     category_rank_df
 })
@@ -672,9 +711,9 @@ event_trigger <- shiny::reactive({
     shiny::req(input$wsWeight)
     shiny::req(input$phWeight)
     shiny::req(input$recWeight)
-    
+
     print("event_trigger reactive")
-    
+
     paste(input$scoreButtons, input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
 
     # paste(input$selected_locations, input$scoreButtons, input$ahWeight, input$wsWeight, input$phWeight, input$recWeight)
@@ -690,13 +729,13 @@ event_trigger <- shiny::reactive({
 
 # # Test output
 # output$idText <- renderPrint({
-# 
+#
 #     print(top_rank())
 #     # print(event_trigger())
 #   })
-# 
+#
 # output$changeText <- renderPrint({
-# 
+#
 #     print(event_trigger())
 #     # print(event_trigger())
 #   })
@@ -711,10 +750,10 @@ Row {data-height=400}
 leaflet::leafletOutput("lhdMap")
 # shiny::onRestore()
 # shinyBS::bsModal(
-#    id = 'lhdMap', 
+#    id = 'lhdMap',
 #    title = 'Dum Dum',
-#    trigger = '', 
-#    size = 'large', 
+#    trigger = '',
+#    size = 'large',
 #    p("here is my mumbo jumbo")
 #    )
 # # shinyalert::shinyalert("Welcome", "Welcome to the ___ Dashboard!", type = "info")
@@ -984,7 +1023,7 @@ output$totalScoreBox <-  flexdashboard::renderValueBox(
 shiny::observeEvent(input$selected_locations, {
 # shiny::observeEvent(event_trigger(), {
       # print("observer4")
-  
+
       # Public Safety value box server
       output$phBox <- flexdashboard::renderValueBox(
         flexdashboard::valueBox(
@@ -994,7 +1033,7 @@ shiny::observeEvent(input$selected_locations, {
           color = "danger"
           )
         )
-      
+
       # Recreation value box server
       output$recBox <- flexdashboard::renderValueBox(
         flexdashboard::valueBox(
@@ -1013,7 +1052,7 @@ shiny::observeEvent(input$selected_locations, {
           color    = "primary"
           )
         )
-      
+
       # Watershed condition value box server
       output$watershedBox <- flexdashboard::renderValueBox(
         flexdashboard::valueBox(
@@ -1023,7 +1062,7 @@ shiny::observeEvent(input$selected_locations, {
           color   = "success"
           )
         )
-      
+
       # Total score value box server
       output$totalScoreBox <- flexdashboard::renderValueBox(
         flexdashboard::valueBox(
@@ -1067,11 +1106,11 @@ shiny::observeEvent(event_trigger(), {
   output$meanScorePlot <- plotly::renderPlotly({
     # score_mean_plot(df = mean_scores(), interactive = TRUE)
       # shiny::req(input$selected_locations)
-    
+
       # shiny::req(selected$groups)
-    
+
       category_rank_plot(
-        df           = category_ranks(), 
+        df           = category_ranks(),
         lhd_ids      = selected$groups,
         # lhd_ids      = c(1, 2),
         interactive  = TRUE
@@ -1111,13 +1150,13 @@ tags$style(HTML("
 ```{r context="server"}
 shiny::observeEvent(event_trigger(), {
    # print("observer6")
-  
+
     # Ranked LHD scores plot
     output$rankPlot <- plotly::renderPlotly({
     # output$rankPlot <- shiny::renderPlot({
       # shiny::req(input$selected_locations)
       # shiny::req(selected$groups)
-      
+
       # Ranked LHD scores plot
       score_rank_plot(
         df          = rank_scores(),
@@ -1218,7 +1257,7 @@ shiny::numericInput(
 # Reset inputs button
 shiny::actionButton(
   "reset_input_dt",
-  "Reset inputs"  
+  "Reset inputs"
   )
 ```
 
@@ -1228,7 +1267,7 @@ shiny::actionButton(
 # Reset datatable selections button
 shiny::actionButton(
   "clear_rows_button",
-  "Clear Table Selections"  
+  "Clear Table Selections"
   )
 # shiny::verbatimTextOutput("idText")
 # shiny::verbatimTextOutput("changeText")
@@ -1237,7 +1276,7 @@ shiny::actionButton(
 ```{r context="server"}
 # Observe clicking of reset button DT
 shiny::observeEvent(input$reset_input_dt, {
-  
+
   # Reset check boxes
   shiny::updateCheckboxGroupInput(
     inputId  = "scoreButtonsDT",
@@ -1269,7 +1308,7 @@ shiny::observeEvent(input$reset_input_dt, {
     min     = 0,
     max     = 20
     )
-  
+
   # Reset Watershed condition weight
   shiny::updateNumericInput(
     inputId = "wsWeightDT",
@@ -1278,7 +1317,7 @@ shiny::observeEvent(input$reset_input_dt, {
     min     = 0,
     max     = 20
   )
-  
+
   # Reset Aquatic health  weight
   shiny::updateNumericInput(
     inputId = "ahWeightDT",
@@ -1331,10 +1370,10 @@ category_weights_dt <- shiny::reactive({
 })
 
 category_ranks_dt <- shiny::reactive({
-  
+
   shiny::req(score_buttons_dt())
   shiny::req(category_weights_dt())
-  
+
   # Rank LHD scores and plot
   category_df <-
     score_norm %>%
@@ -1459,7 +1498,7 @@ output$scoreTable <- DT::renderDT({
         pageLength = 25,
         stateSave  = TRUE
         )
-      ) %>% 
+      ) %>%
     DT::formatRound(columns = c('Latitude', 'Longitude'),  digits = 2)
   })
 
@@ -1471,7 +1510,7 @@ shiny::observeEvent(input$clear_rows_button, {
       DT::selectRows(DT_proxy, NULL)
       leaflet::leafletProxy("tableMap") %>%
          leaflet::clearGroup(group_name)
-      
+
    })
 
 # added marker group name

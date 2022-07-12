@@ -1,7 +1,11 @@
 .navbar-logo img {
     position: absolute;
-     max-width:100px;
-     max-height:100px;
+    right: 6px;
+    max-width: 250px;
+    max-height: 35px;
+}
+.navbar-logo {
+    margin-top: 2px;
 }
 .navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus {
     color: white;
@@ -14,12 +18,10 @@
     color: white;
     font-weight: 500;
 }
-
-.img-left {
-  float: left;
-  margin-right: 1em;
-}
-
+ .img-left {
+   float: left;
+   margin-right: 1em;
+ }
 .chart-wrapper, .nav-tabs-custom, .sbframe-commentary {
     background: #FFFFFF;
     border: 1px;
