@@ -19,11 +19,9 @@ library(dplyr)
 library(tidyr)
 library(leaflet)
 library(sf)
-# library(rgdal)
 library(RColorBrewer)
 library(viridisLite)
 library(DT)
-# library(knitr)
 library(ggplot2)
 library(plotly)
 library(shinyBS)
@@ -31,15 +29,13 @@ library(htmltools)
 library(knitr)
 library(shinyalert)
 # library(shinyjs)
-# library(flextable)
-# library(reactable)
 
 # knitr::opts_chunk$set(echo = FALSE, ft_max_row = 6, tab.topcaption=FALSE, ft.align="left")
 # tags$head(tags$style(HTML("label {font-weight:bold;}")))
 
 # <style>
 # .navbar, [data-toggle=tab], .navbar-brand  {   background-color:#1c3a5d;   border-color:black;   color:white; }
-# 
+
 # .navbar-logo img {
 #     position: absolute;
 #     right: 6px;
@@ -50,27 +46,7 @@ library(shinyalert)
 #     position: absolute;
 #     right: 6px;
 # }
-# 
-# .navbar-logo img {
-#     position: absolute;
-#     right: 6px;
-#     max-width: 145px;
-#     max-height: 100px;
-# }
-# .navbar-logo img {
-#   position: fixed;
-#   right: 10px;
-#   top: 5px;
-# }
-# .img-left {
-#   float: left;
-#   margin-right: 1em;
-# }
-# .navbar-logo img {
-#      position: absolute;
-#      max-width:100px;
-#      max-height:100px;
-# }
+
 # </style>
 source('utils.R')
 ```
