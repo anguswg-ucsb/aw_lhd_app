@@ -93,12 +93,23 @@ Row {.tabset}
 
 ### About this Project
 
+---
+
 #### **About this project**
 
 ---
 
 <center><h4>A total of 1,103 low-head dams in Colorado have been inventoried and documented on an interactive public map **([Colorado Low Head Dam Inventory](https://dnr.colorado.gov/initiatives/colorado-low-head-dams))**. Many of these low-head dams (LHDs) have a clear economic utility, serving agricultural, mining, municipal, and/or industrial needs. However, many of these low-head dams also pose a public safety hazard, disrupt recreational opportunities, are rendered obsolete, and disturb the continuity and function of aquatic ecosystems and associated ecosystem services. A challenge facing decision makers is identifying which low-head dams are appropriate for retrofitting or removal (R/R). In order to aid this decision-making process, a quantitative framework for prioritizing low-head dams must be developed. Such a framework must account for the multi-sector costs and benefits of project investment, and do-so at-scale such that all 1,103 existing low-head dams can be evaluated.</h4></center>
 
+<br>
+
+<center><h4>**DISCLAIMER:**</h4></center>
+
+---
+
+<center><h4>This dashboard is a decision support tool, not a decision maker. Capital investment decisions are situationally unique and multifactorial. The framework behind the dashboard is limited due to data available at all 1,103 inventoried dams and is unable to quantitatively capture all of the considerations behind any one project. However, the dashboard does offer a generalizable platform for comparing and contrasting many potential projects across Colorado that may be useful in the process of investment triage. In other words, the dashboard provides a mechanism to identify a short (or long-short) list of projects that warrant deeper consideration.</h4></center>
+
+<br>
 <br>
 
 #### 
@@ -109,12 +120,6 @@ knitr::include_graphics("data/app_data/low_head_dam_border.jpg")
 
 <br>
 <br>
-
-<center><h4>**DISCLAIMER:**</h4></center>
-
----
-
-<center><h4>This dashboard is a decision support tool, not a decision maker. Capital investment decisions are situationally unique and multifactorial. The framework behind the dashboard is limited due to data available at all 1,103 inventoried dams and is unable to quantitatively capture all of the considerations behind any one project. However, the dashboard does offer a generalizable platform for comparing and contrasting many potential projects across Colorado that may be useful in the process of investment triage. In other words, the dashboard provides a mechanism to identify a short (or long-short) list of projects that warrant deeper consideration.</h4></center>
 
 ---
 
