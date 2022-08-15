@@ -36,7 +36,8 @@ stream_names <- readRDS("data/raw/lhd_stream_names.rds")
 
 # LHD scores
 aquatic      <- readRDS("data/raw/aquatic_health_score.rds")
-public       <- readRDS("data/raw/public_health_score.rds")
+public       <- readRDS("data/raw/public_health_score_v2.rds") %>% 
+  replace(is.na(.), 0)
 rec          <- readRDS("data/raw/recreation_score.rds")
 ws_cond      <- readRDS("data/raw/watershed_condition_score.rds")
 
@@ -67,7 +68,10 @@ scores <-
       new_id = as.character(new_id)
       ),
     by = "new_id"
-    )
+    ) %>%  
+  dplyr::mutate(
+    across(where(is.matrix), as.vector)
+    ) 
 
 # LHD points and IDs
 lhd_pts <-

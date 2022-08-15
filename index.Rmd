@@ -58,7 +58,7 @@ source('utils.R')
 </style>
 
 ```{r context="server"}
-shinyalert::useShinyalert(rmd = TRUE)
+shinyalert::useShinyalert()
 
 # LHD Points and scores, wide format
 score_pts   <- readRDS("data/app_data/lhd_score_pts.rds")
@@ -69,21 +69,11 @@ score_norm  <- readRDS("data/app_data/lhd_score_normal.rds") %>%
   dplyr::rename(score = score_std)
 
 # List of snakecase and clean category names
-cat_lst       <- c("aquatic_health", "watershed_cond", "public_health", "recreation")
-clean_cat_lst <- c("Aquatic Health","Watershed Condition", "Public Safety", "Recreation")
+cat_lst        <- c("aquatic_health", "watershed_cond", "public_health", "recreation")
+clean_cat_lst  <- c("Aquatic Health","Watershed Condition", "Public Safety", "Recreation")
 
 # Scoring tab LHD map
 output$lhdMap          <- renderLeaflet({ basemap(pts = score_pts) })
-
-# output$tableMap        <- renderLeaflet({ 
-#   tablemap(pts = dplyr::filter(score_pts, new_id %in% c(top_rank()$ID))) 
-#            })
-
-# Unused data
-# score       <- readRDS("data/app_data/lhd_score.rds")
-# score_rank_pts    <-  readRDS("data/app_data/lhd_score_normal_pts.rds")
-# score_pts    <-  readRDS("data/app_data/lhd_score_normal_pts_wide.rds") 
-# score_tidy  <- readRDS("data/app_data/lhd_score_tidy.rds")
 ```
 
 Introduction
@@ -115,7 +105,7 @@ Row {.tabset}
 #### 
 ```{r low head dam, echo = FALSE, out.width = '50%', fig.align = 'center'}
 # 
-knitr::include_graphics("data/app_data/low_head_dam_border.jpg")
+knitr::include_graphics("data/app_data/welcome_page_v2.png")
 ```
 
 <br>
@@ -234,7 +224,7 @@ knitr::include_graphics("data/app_data/score_interp.png")
 
 <center><h4>Quantitative metrics provide actionable information to assist in R/R projects. Some of the methods we use to quantify LHD structures have been vetted and used in existing analytical frameworks (Lacy, 2020; SARP, 2022). We build on these individual frameworks and quantitatively assess project potential in each interest domain using appropriate data. For more detailed information about the analysis methods, please see the [source code repository](https://github.com/rachel-lynker/lhd_analysis) for this project.
 
-The public safety interest domain is quantified by the level of danger an LHD structure presents to humans. Our evaluation of public safety impact is based on three core concepts: 1) historical incident reports, 2) the potential for dangerous submerged hydraulic jumps to manifest near the structure, and 3) the proximity of the structure to major population centers and popular recreational reaches. Historical incident reports of known injuries and fatalities at LHDs provide direct evidence of LHD danger. The presence and persistence of submerged hydraulic jumps, which can entrain humans and cause drowning or serious injury, are evaluated using structural categorizations and attributes and satellite imagery of the structures. The proximity of an LHD to a population center or popular recreational reach help us understand the likelihood that humans are in contact with the structure and its intrinsic dangers. Population proximity may be evaluated using U.S. census data and rudimentary geospatial analysis techniques, and recreational reaches are determined by American Whitewater reaches and Colorado Parks and Wildlife fishing locations. 
+The public safety interest domain is quantified by the level of danger an LHD structure presents to humans. Our evaluation of public safety impact is based on three core concepts: 1) historical incident reports, 2) the potential for dangerous submerged hydraulic jumps to manifest near the structure, and 3) the proximity of the structure to major population centers and popular recreational reaches. Historical incident reports of known injuries and fatalities at LHDs provide direct evidence of LHD danger. The presence and persistence of submerged hydraulic jumps, which can entrain humans and cause drowning or serious injury, is an important indicator of the danger of the barrier, and depends on the type of structure that was constructed. Using satellite imagery of the structures, a team of analysts categorized each structure as either having a submerged hydraulic jump potential, no submerged hydraulic jump potential, or no hazard (all structures designed for recreation were removed from this analysis). Lastly, the proximity of an LHD to a population center or popular recreational reaches helps us understand the likelihood that humans are in contact with the structure and its intrinsic dangers. Population proximity may be evaluated using U.S. census data and rudimentary geospatial analysis techniques, and recreational reaches are determined by American Whitewater reaches and Colorado Parks and Wildlife fishing locations. Calculating a total score for public safety is illustrated by the equation and range of values below.
 
 River network connectivity is a core concept underlying our proposed approaches for evaluating project impact to watershed quality, aquatic habitat and recreation. River network connectivity refers to the network of interconnected waterways (and their attributes) between structural breakpoints. Delineating connected networks adjacent to LHDs can be done with the National Hydrography Dataset (NHDPlus), which provides a high-resolution mapping of the U.S. river and stream network (U.S. Geological Survey, 2019). Using graph analysis computational techniques, we can identify the extent of connected river networks as they exist now and as they may be in the future following R/R project investment. For example, consider the river network in Figure 3A with three LHDs situated along the mainstem. In this network, LHD 2 acts as a connectivity barrier dividing the black network (between LHD 3 and 2) and the gray network (between LHD 2 and 1). If LHD 2 were to be removed, as is shown in Figure 3B, the newly connected area, shown in green, is the sum of the previously divided gray and black networks. The potentially connected network extent in Figure 3B provides a domain extent for subsequent analyses of geomorphic, ecological, hydrological, and recreational attributes of constituent river segments.</h4></center>
 
@@ -249,10 +239,12 @@ knitr::include_graphics("data/app_data/connectivity.png")
 <br>
 
 <center><h4>Watershed condition describes the physical and biological integrity of the watershed. Our evaluation of watershed condition impact is based on four main concepts: 1) network connectivity, as described previously, 2) network complexity, 3) natural landcover, and 4) channel alteration, all of which have been adapted from the Aquatic Barrier Prioritization Tool (SARP, 2022). The diversity of stream order within the connected network measures the level of complexity in the watershed. A more complex network allows for a greater range of habitat and species. Network complexity is evaluated using the NHDPlus network by assigning segments to class sizes based on total drainage area. Watershed condition is also influenced by the amount of natural land cover in the watershed, as LHDs surrounded by fewer impervious surfaces are more likely to contribute to higher quality habitat if a R/R were to occur. Natural land cover is derived from the USDA National Landcover Database (NCLD) and measured from the overall percent of natural land cover throughout the entire connected network. Lastly, channel alteration is a measure of how altered a waterway is compared to natural conditions. Highly channelized reaches have a lower variety and quality of instream habitat. We evaluate channel alteration by identifying reach segments coded as canals or ditches in the NHDPlus HR dataset, and then calculating the percent of altered lengths by the total length of the connected network. 
+Calculating a total score for watershed condition is illustrated by the equation and range of values below.
 
-Aquatic biota is a prime indicator of overall stream health (Herman and Nejadhashemi, 2015). Thus, the extent of quality habitable waters for endangered species, trout, and other aquatic biota in Colorado waters is an important consideration in LHD R/R projects. To evaluate the aquatic habitat interest domain, we propose the following considerations: 1) network connectivity, as described above, and 2) cumulative habitat condition indices (HCI). Habitat condition indices exist for every river reach in the coterminous United States, and measure aquatic habitat quality while considering human disturbances and the natural landscape. We quantify aquatic habitat condition by averaging HCI scores for every river segment upstream of each LHD. 
+Aquatic biota is a prime indicator of overall stream health (Herman and Nejadhashemi, 2015). Thus, the extent of quality habitable waters for endangered species, trout, and other aquatic biota in Colorado waters is an important consideration in LHD R/R projects. To evaluate the aquatic habitat interest domain, we propose the following considerations: 1) network connectivity, as described above, and 2) cumulative habitat condition indices (HCI). Habitat condition indices exist for every river reach in the coterminous United States, and measure aquatic habitat quality while considering human disturbances and the natural landscape. We quantify aquatic habitat condition by averaging HCI scores for every river segment upstream of each LHD. Calculating a total score for aquatic biota is illustrated by the equation and range of values below.
 
-The recreation interest domain quantifies the abundance of quality recreational opportunities. In addition to network connectivity, which would allow for uninterrupted boat passage, we also evaluate this interest domain by considering the proximity of LHDs to river access points and existing popular recreation reaches (whitewater stretches and gold medal waters), as well as to a town or city center. Successful whitewater parks built within the last 30 years are often built near population centers who regularly seek them out. Therefore, this domain may be evaluated simply by proximity to recreational reaches (such as documented American Whitewater segments and the Colorado Parks and Wildlife Gold Medal Fishing waters) and State of Colorado municipal boundaries.  
+The recreation interest domain quantifies the abundance of quality recreational opportunities. In addition to network connectivity, which would allow for uninterrupted boat passage, we also evaluate this interest domain by considering the proximity of LHDs to river access points and existing popular recreation reaches (whitewater stretches and gold medal waters), as well as to a town or city center. Successful whitewater parks built within the last 30 years are often built near population centers who regularly seek them out. Therefore, this domain may be evaluated simply by proximity to recreational reaches (such as documented American Whitewater segments and the Colorado Parks and Wildlife Gold Medal Fishing waters) and State of Colorado municipal boundaries. Calculating a total score for recreation is illustrated by the equation and range of values below.
+
 
 In order to compare an LHD’s potential impact to another, we synthesize the individual impact scores into a composite, total score. Interest domains can be weighted more or less in a composite score, based on user institutional or structural knowledge about the LHD of interest. An evaluation of the net impacts of a portfolio of LHDs can give decision makers the ability to identify groups of LHDs that may not receive high impact scores individually, but could approach a maximum future value if all underwent a R/R project. This scenario is conceivable when there are multiple LHDs close to each other on a single stretch of river, and removing all of them could significantly increase network connectivity and the potential impact across all interest domains.</h4></center>
 
@@ -264,7 +256,7 @@ In order to compare an LHD’s potential impact to another, we synthesize the in
 
 <center><h4>This framework and dashboard are decision support tools, not decision makers. Capital investment decisions are situationally unique and multifactorial. The framework is surely unable to quantitatively capture all of the considerations behind any one project. However, the framework does offer a generalizable platform for comparing and contrasting many potential projects across the state that may be useful in the process of investment triage. In other words, the framework provides a mechanism to identify a short (or long-short) list of projects that warrant deeper consideration. 
 
-The Colorado LHD Inventory contained structure category designations Diversion Dam, Grade Control Structures, and Recreation. While all Recreation dams were confirmed and removed from the analysis, it must be noted that a thorough investigation of the remaining two categories, Diversion Dam and Grade Control Structure was not done. The Colorado LHD Inventory identified Diversion Dams as the most dangerous, as they are most likely built with a vertical face that can create a submerged hydraulic jump. A cursory pass through of some LHDs found some mis-categorization some LHDs between the first two categories, with some Grade Control Structures mislabeled as Diversion Dams and vise versa. Therefore, scoring an LHD based on this categorization would have been misleading, potentially lowering the score of a dangerous LHD. Further work correctly categorizing LHDs based on submerged hydraulic jump potential should be completed.
+The Colorado LHD Inventory contained structure category designations Diversion Dam, Grade Control Structures, and Recreation. The inventory identified Diversion Dams as the most dangerous, as they are most likely built with a vertical face that can create a submerged hydraulic jump. An initial pass through of the inventory found mis-categorization of some LHDs; for instance, some Grade Control Structures were mislabeled as Diversion Dams and vise versa. Therefore, scoring an LHD based on this categorization would have been misleading, potentially lowering the score of a dangerous LHD, or raising the score of a non-dangerous LHD. Instead of relying on the given structural category to signify the barrier's hazard, a separate hazard score was calculated by analyzing the satellite imagery of every low-head dam at different points throughout the year, using both Google Earth and Google Maps. This hazard score, NOT the structural category designation, is the more accurate measure of LHD danger and risk. All Recreation dams were confirmed and removed from the analysis
 
 Certain data limitations exist that prevent some factors of an interest domain to be fully quantified. Therefore, each domain is quantified based on best available state-wide data that best represents each consideration. For instance, some aquatic measurements of aquatic health, such as species richness and presence of invasive species, are not comprehensive enough to adequately include in the framework. Therefore, institutional knowledge of known invasive or endangered species should be considered in concert with the prioritization scoring framework.</h4></center>
 
@@ -729,16 +721,6 @@ Row {data-height=400}
 ```{r}
 # LHD leaflet output
 leaflet::leafletOutput("lhdMap")
-# shiny::onRestore()
-# shinyBS::bsModal(
-#    id = 'lhdMap',
-#    title = 'Dum Dum',
-#    trigger = '',
-#    size = 'large',
-#    p("here is my mumbo jumbo")
-#    )
-# # shinyalert::shinyalert("Welcome", "Welcome to the ___ Dashboard!", type = "info")
-# shinyBS::toggleModal(session, "lhdMap", toggle = "open")
 ```
 
 ```{r context="server"}
@@ -777,7 +759,7 @@ shiny::observeEvent(input$lhdMap_marker_click, {
 
 
 shiny::observeEvent(input$selected_locations, {
-      # print("observer2")
+  
       # Points removed by selection input
       removed_via_selectInput <- setdiff(selected$groups, input$selected_locations)
 
@@ -1378,12 +1360,12 @@ category_ranks_dt <- shiny::reactive({
 top_rank <- shiny::reactive({
     shiny::req(score_buttons_dt())
     shiny::req(category_weights_dt())
+    
     # Top 25 LHD scores
     # top_rank <-
     score_norm %>%
         dplyr::filter(category %in% score_buttons_dt()) %>%
         # dplyr::filter(category %in% c("aquatic_health", "recreation", "watershed_cond", "public_health")) %>%
-           # dplyr::filter(category %in% c()) %>%
         dplyr::left_join(
           category_weights_dt(),
           # weights_df,
@@ -1415,10 +1397,7 @@ top_rank <- shiny::reactive({
           ) %>%
         dplyr::relocate(Rank, ID, `Total Score`) %>%
             dplyr::relocate(Ownership, Stream, Latitude, Longitude, .after = last_col())
-        # dplyr::relocate(`Total Score`, .after = last_col()) %>%
-        # dplyr::relocate(Ownership, Stream, lat, lng, .after = last_col())
-
-  # }
+  
 })
 
 # # Reactive IDs text
@@ -1476,11 +1455,14 @@ output$scoreTable <- DT::renderDT({
       top_rank(),
       fillContainer = TRUE,
       options       = list(
-        pageLength = 25,
-        stateSave  = TRUE
+        pageLength   = 25,
+        stateSave    = TRUE,
+        lengthChange = FALSE,
+        dom          = "ft"
         )
       ) %>%
-    DT::formatRound(columns = c('Latitude', 'Longitude'),  digits = 2)
+     DT::formatRound(columns = c('Total Score', 'Aquatic Health', 'Watershed Condition', 
+                                 'Public Safety', 'Recreation' ,'Latitude', 'Longitude'),  digits = 2)
   })
 
 # # create a proxy to modify datatable without recreating it completely
@@ -1543,7 +1525,7 @@ shiny::observeEvent(input$scoreTable_rows_selected, {
 
 Row
 -----------------------------------------------------------------------
-### Map
+### 
 ```{r}
 # Row {data-height=400}
 # LHD leaflet output
